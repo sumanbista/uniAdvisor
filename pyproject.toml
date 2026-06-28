@@ -1,0 +1,19 @@
+[project]
+name = "coursecompass-ai"
+version = "0.1.0"
+description = "Phase 1 RAG foundation for Computer Science advising documents."
+requires-python = ">=3.11"
+dependencies = [
+  "alembic>=1.13",
+  "psycopg[binary]>=3.1",
+  "sqlalchemy>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
