@@ -63,6 +63,7 @@ def test_documents_router_is_registered() -> None:
     routes = {route.path for route in router.routes}
     assert "/documents/upload" in routes
     assert "/documents/{document_id}/extract" in routes
+    assert "/documents/{document_id}/chunk" in routes
 
 
 def test_safe_filename_removes_path_and_unsafe_characters() -> None:
