@@ -1,0 +1,15 @@
+from backend.app.core.config import normalize_database_url
+
+
+def test_normalize_database_url_uses_psycopg_driver_for_postgresql_urls() -> None:
+    assert (
+        normalize_database_url("postgresql://postgres.example:secret@host:5432/postgres")
+        == "postgresql+psycopg://postgres.example:secret@host:5432/postgres"
+    )
+
+
+def test_normalize_database_url_uses_psycopg_driver_for_postgres_urls() -> None:
+    assert (
+        normalize_database_url("postgres://postgres.example:secret@host:5432/postgres")
+        == "postgresql+psycopg://postgres.example:secret@host:5432/postgres"
+    )

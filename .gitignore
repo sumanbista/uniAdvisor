@@ -1,8 +1,10 @@
 docs/
+backend/storage/
 
 .pytest_cache/
 __pycache__/
 *.py[cod]
+*.egg-info/
 .env
 .venv/
 venv/
