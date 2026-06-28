@@ -117,6 +117,7 @@ class DocumentChunk(Base):
         Index("ix_document_chunks_content_hash", "content_hash"),
         Index("ix_document_chunks_embedding", "embedding", postgresql_using="ivfflat", postgresql_ops={"embedding": "vector_cosine_ops"}),
         Index("uq_document_chunks_document_chunk_index", "document_id", "chunk_index", unique=True),
+        Index("uq_document_chunks_document_content_hash", "document_id", "content_hash", unique=True),
     )
 
 

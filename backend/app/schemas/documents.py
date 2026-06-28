@@ -27,3 +27,9 @@ class ExtractionResponse(BaseModel):
     status: str
     extracted_text_path: str
     character_count: int
+
+
+class ChunkingResponse(BaseModel):
+    document_id: uuid.UUID
+    chunks_created: int
+    status: str
