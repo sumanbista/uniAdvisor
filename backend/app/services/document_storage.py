@@ -4,17 +4,22 @@ import uuid
 from pathlib import Path
 from typing import BinaryIO
 
-SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".md"}
+from backend.app.core.config import DEFAULT_ALLOWED_UPLOAD_EXTENSIONS
+
+SUPPORTED_EXTENSIONS = DEFAULT_ALLOWED_UPLOAD_EXTENSIONS
 
 
 class DocumentStorageError(ValueError):
     pass
 
 
-def validate_supported_extension(file_name: str) -> str:
+def validate_supported_extension(
+    file_name: str,
+    supported_extensions: frozenset[str] = SUPPORTED_EXTENSIONS,
+) -> str:
     extension = Path(file_name).suffix.lower()
-    if extension not in SUPPORTED_EXTENSIONS:
-        allowed = ", ".join(sorted(SUPPORTED_EXTENSIONS))
+    if extension not in supported_extensions:
+        allowed = ", ".join(sorted(supported_extensions))
         raise DocumentStorageError(f"Unsupported file type. Supported file types: {allowed}")
     return extension
 
@@ -35,8 +40,9 @@ def save_uploaded_file(
     storage_dir: Path,
     document_id: uuid.UUID,
     original_file_name: str,
+    supported_extensions: frozenset[str] = SUPPORTED_EXTENSIONS,
 ) -> Path:
-    validate_supported_extension(original_file_name)
+    validate_supported_extension(original_file_name, supported_extensions)
     storage_dir.mkdir(parents=True, exist_ok=True)
 
     destination = stored_document_path(storage_dir, document_id, original_file_name)

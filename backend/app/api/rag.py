@@ -6,7 +6,7 @@ from backend.app.schemas.rag import RagAskRequest, RagAskResponse, RagSearchRequ
 from backend.app.services.embeddings import EmbeddingError, EmbeddingProvider, get_embedding_provider
 from backend.app.services.llm import LLMError, LLMProvider, get_llm_provider
 from backend.app.services.rag_answer import answer_question
-from backend.app.services.rag_search import search_chunks
+from backend.app.services.rag_search import RagFilterError, search_chunks
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
@@ -30,9 +30,9 @@ def search_rag(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(exc),
         ) from exc
-    except ValueError as exc:
+    except RagFilterError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
 
@@ -65,8 +65,8 @@ def ask_rag(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(exc),
         ) from exc
-    except ValueError as exc:
+    except RagFilterError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc

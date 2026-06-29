@@ -258,7 +258,7 @@ def test_rag_ask_rejects_unsupported_filters(client: TestClient) -> None:
         json={"question": "What math courses are required?", "filters": {"campus": "main"}},
     )
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     assert "Unsupported filters" in str(response.json()["detail"])
 
 

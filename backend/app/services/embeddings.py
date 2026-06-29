@@ -1,9 +1,9 @@
 from functools import lru_cache
 from typing import Protocol
 
+from backend.app.core.config import DEFAULT_EMBEDDING_DIMENSIONS, DEFAULT_EMBEDDING_MODEL
 
-EMBEDDING_DIMENSIONS = 384
-DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_DIMENSIONS = DEFAULT_EMBEDDING_DIMENSIONS
 
 
 class EmbeddingError(RuntimeError):
