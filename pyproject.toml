@@ -5,7 +5,9 @@ description = "Phase 1 RAG foundation for Computer Science advising documents."
 requires-python = ">=3.11"
 dependencies = [
   "alembic>=1.13",
+  "certifi>=2024.0",
   "fastapi>=0.115",
+  "groq>=0.9",
   "psycopg[binary]>=3.1",
   "pydantic>=2.7",
   "pypdf>=4.0",

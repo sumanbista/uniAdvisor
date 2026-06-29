@@ -7,6 +7,7 @@ from backend.app.db.models import Document, DocumentChunk, DocumentStatus
 from backend.app.db.session import get_db
 from backend.app.main import app
 from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, get_embedding_provider
+from tests.route_helpers import route_paths
 
 
 class DeterministicEmbeddingProvider:
@@ -177,8 +178,7 @@ def add_chunk(
 
 
 def test_rag_search_endpoint_is_registered() -> None:
-    route_paths = {route.path for route in app.routes}
-    assert "/rag/search" in route_paths
+    assert "/rag/search" in route_paths(app)
 
 
 def test_search_returns_ranked_chunks_with_source_metadata(client: TestClient) -> None:

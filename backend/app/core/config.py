@@ -29,6 +29,8 @@ class Settings:
         self.extracted_text_dir = Path(
             os.getenv("COURSECOMPASS_EXTRACTED_TEXT_DIR", "backend/storage/extracted")
         )
+        self.groq_api_key = os.getenv("GROQ_API_KEY")
+        self.groq_model = os.getenv("COURSECOMPASS_GROQ_MODEL", "llama-3.1-8b-instant")
 
 
 @lru_cache
