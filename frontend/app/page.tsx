@@ -29,11 +29,12 @@ export default function Home() {
                 <Badge>Foundation</Badge>
                 <Badge variant="secondary">Documents UI</Badge>
                 <Badge variant="outline">Search UI</Badge>
+                <Badge variant="outline">Ask UI</Badge>
               </div>
               <Separator />
               <p className="text-sm text-muted-foreground">
-                App shell, document processing UI, RAG search inspection, API
-                wiring, and shared types are in place.
+                App shell, document processing, RAG search inspection, grounded
+                ask UI, API wiring, and shared types are in place.
               </p>
             </CardContent>
           </Card>
