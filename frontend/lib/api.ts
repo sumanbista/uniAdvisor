@@ -1,15 +1,24 @@
-import type { ApiError } from "@/lib/types";
+import type {
+  ApiError,
+  DocumentChunkResponse,
+  DocumentExtractionResponse,
+  DocumentUploadResponse,
+} from "@/lib/types";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = init?.body instanceof FormData
+    ? init?.headers
+    : {
+        "Content-Type": "application/json",
+        ...init?.headers,
+      };
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
+    headers,
   });
 
   const contentType = response.headers.get("content-type") ?? "";
@@ -25,6 +34,25 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   }
 
   return payload as T;
+}
+
+export function uploadDocument(formData: FormData) {
+  return apiFetch<DocumentUploadResponse>("/documents/upload", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export function extractDocument(documentId: string) {
+  return apiFetch<DocumentExtractionResponse>(`/documents/${documentId}/extract`, {
+    method: "POST",
+  });
+}
+
+export function chunkDocument(documentId: string) {
+  return apiFetch<DocumentChunkResponse>(`/documents/${documentId}/chunk`, {
+    method: "POST",
+  });
 }
 
 function extractErrorMessage(payload: unknown, fallback: string): string {

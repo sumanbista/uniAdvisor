@@ -1,3 +1,4 @@
+import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,7 +35,19 @@ export function DashboardTabs() {
         ))}
       </TabsList>
 
-      {panels.map((panel) => (
+      <TabsContent value="documents">
+        <Card>
+          <CardHeader>
+            <CardTitle>Document Processing</CardTitle>
+            <CardDescription>Upload, extract, and chunk one academic document at a time.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DocumentUploadForm />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {panels.slice(1).map((panel) => (
         <TabsContent key={panel.value} value={panel.value}>
           <Card>
             <CardHeader>
