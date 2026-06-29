@@ -43,3 +43,35 @@ export type DocumentChunkResponse = {
   chunks_created: number;
   status: DocumentStatus;
 };
+
+export type RagFilters = {
+  department: string;
+  program: string;
+  source_type?: SourceType;
+  academic_year?: string;
+};
+
+export type RagSearchRequest = {
+  query: string;
+  filters: RagFilters;
+  top_k: number;
+};
+
+export type RagSearchResult = {
+  chunk_id: string;
+  document_id: string;
+  document_title: string;
+  text: string;
+  score?: number | null;
+  page_number?: number | null;
+  section_title?: string | null;
+  source_type: SourceType;
+  department: string;
+  program: string;
+  academic_year?: string | null;
+};
+
+export type RagSearchResponse = {
+  query: string;
+  results: RagSearchResult[];
+};

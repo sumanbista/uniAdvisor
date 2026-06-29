@@ -28,12 +28,12 @@ export default function Home() {
               <div className="flex flex-wrap gap-2">
                 <Badge>Foundation</Badge>
                 <Badge variant="secondary">Documents UI</Badge>
-                <Badge variant="outline">RAG ready</Badge>
+                <Badge variant="outline">Search UI</Badge>
               </div>
               <Separator />
               <p className="text-sm text-muted-foreground">
-                App shell, document processing UI, API wiring, shared types, and
-                placeholder RAG panels are in place.
+                App shell, document processing UI, RAG search inspection, API
+                wiring, and shared types are in place.
               </p>
             </CardContent>
           </Card>

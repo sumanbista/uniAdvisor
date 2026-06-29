@@ -3,6 +3,8 @@ import type {
   DocumentChunkResponse,
   DocumentExtractionResponse,
   DocumentUploadResponse,
+  RagSearchRequest,
+  RagSearchResponse,
 } from "@/lib/types";
 
 export const API_BASE_URL =
@@ -52,6 +54,13 @@ export function extractDocument(documentId: string) {
 export function chunkDocument(documentId: string) {
   return apiFetch<DocumentChunkResponse>(`/documents/${documentId}/chunk`, {
     method: "POST",
+  });
+}
+
+export function searchRag(request: RagSearchRequest) {
+  return apiFetch<RagSearchResponse>("/rag/search", {
+    method: "POST",
+    body: JSON.stringify(request),
   });
 }
 
