@@ -37,6 +37,12 @@ def parse_extensions(value: str | None) -> frozenset[str]:
     )
 
 
+def parse_csv(value: str | None, default: tuple[str, ...]) -> tuple[str, ...]:
+    if not value:
+        return default
+    return tuple(item.strip() for item in value.split(",") if item.strip())
+
+
 class Settings:
     def __init__(self) -> None:
         self.database_url = normalize_database_url(
@@ -56,6 +62,10 @@ class Settings:
         self.chunk_overlap = int(os.getenv("COURSECOMPASS_CHUNK_OVERLAP", str(DEFAULT_CHUNK_OVERLAP)))
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.groq_model = os.getenv("COURSECOMPASS_GROQ_MODEL", DEFAULT_GROQ_MODEL)
+        self.cors_origins = parse_csv(
+            os.getenv("COURSECOMPASS_CORS_ORIGINS"),
+            ("http://localhost:3000", "http://127.0.0.1:3000"),
+        )
 
 
 @lru_cache
