@@ -14,7 +14,7 @@ from backend.app.services.chunking import (
     read_extracted_text,
     replace_document_chunks,
 )
-from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, get_embedding_provider
+from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, EmbeddingError, get_embedding_provider
 
 
 class DeterministicEmbeddingProvider:
@@ -27,10 +27,10 @@ class DeterministicEmbeddingProvider:
 
 class FailingEmbeddingProvider:
     def embed(self, text: str) -> list[float]:
-        raise RuntimeError("Embedding generation failed")
+        raise EmbeddingError("Embedding generation failed")
 
     def embed_batch(self, texts: list[str]) -> list[list[float]]:
-        raise RuntimeError("Embedding generation failed")
+        raise EmbeddingError("Embedding generation failed")
 
 
 class FakeSession:
@@ -69,6 +69,11 @@ class LocalSettings(Settings):
         self.database_url = "postgresql+psycopg://example"
         self.document_storage_dir = root / "documents"
         self.extracted_text_dir = root / "extracted"
+        self.allowed_upload_extensions = frozenset({".pdf", ".txt", ".md"})
+        self.chunk_size = 1000
+        self.chunk_overlap = 200
+        self.groq_api_key = None
+        self.groq_model = "llama-3.1-8b-instant"
 
 
 @pytest.fixture()
@@ -197,6 +202,33 @@ def test_replace_document_chunks_stores_metadata_embeddings_and_replaces_old_chu
     assert chunk.content_hash != "old"
 
 
+def test_replace_document_chunks_preserves_old_chunks_when_embedding_fails() -> None:
+    document_id = uuid.uuid4()
+    document = document_fixture(document_id)
+    fake_session = FakeSession()
+    old_chunk = DocumentChunk(
+        document_id=document_id,
+        chunk_index=0,
+        text="old",
+        embedding=[0.0] * EMBEDDING_DIMENSIONS,
+        source_type="four_year_plan",
+        department="Computer Science",
+        program="Computer Science",
+        content_hash="old",
+    )
+    fake_session.chunks.append(old_chunk)
+
+    with pytest.raises(EmbeddingError):
+        replace_document_chunks(
+            fake_session,
+            document,
+            "--- Page 1 ---\nPlan Overview\nStudents complete CS courses.",
+            FailingEmbeddingProvider(),
+        )
+
+    assert fake_session.chunks == [old_chunk]
+
+
 def test_chunk_endpoint_updates_document_status_and_stores_chunks(
     client: TestClient,
     fake_session: FakeSession,
@@ -237,6 +269,33 @@ def test_chunk_endpoint_marks_document_failed_when_extracted_text_is_missing(
     assert response.json()["detail"] == "Extracted text file was not found"
     assert fake_session.documents[document_id].status == "failed"
     assert fake_session.documents[document_id].error_message == "Extracted text file was not found"
+
+
+def test_chunk_endpoint_marks_document_failed_when_embedding_fails(
+    client: TestClient,
+    fake_session: FakeSession,
+    tmp_path: Path,
+) -> None:
+    document_id = uuid.uuid4()
+    fake_session.documents[document_id] = document_fixture(document_id)
+    extracted_dir = tmp_path / "extracted"
+    extracted_dir.mkdir()
+    (extracted_dir / f"{document_id}.txt").write_text(
+        "--- Page 1 ---\nRequirements\nStudents take CS 101.",
+        encoding="utf-8",
+    )
+
+    def override_embedding_provider() -> FailingEmbeddingProvider:
+        return FailingEmbeddingProvider()
+
+    app.dependency_overrides[get_embedding_provider] = override_embedding_provider
+    response = client.post(f"/documents/{document_id}/chunk")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Embedding generation failed"
+    assert fake_session.rollback_called is True
+    assert fake_session.documents[document_id].status == "failed"
+    assert fake_session.documents[document_id].error_message == "Embedding generation failed"
 
 
 def test_real_embedding_provider_returns_384_dimensions_when_model_is_available() -> None:

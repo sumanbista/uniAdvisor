@@ -35,6 +35,11 @@ class LocalSettings(Settings):
         self.database_url = "postgresql+psycopg://example"
         self.document_storage_dir = root / "documents"
         self.extracted_text_dir = root / "extracted"
+        self.allowed_upload_extensions = frozenset({".pdf", ".txt", ".md"})
+        self.chunk_size = 1000
+        self.chunk_overlap = 200
+        self.groq_api_key = None
+        self.groq_model = "llama-3.1-8b-instant"
 
 
 @pytest.fixture()

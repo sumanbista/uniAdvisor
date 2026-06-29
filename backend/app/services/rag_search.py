@@ -6,8 +6,9 @@ from typing import Any
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
+from backend.app.core.config import DEFAULT_DEPARTMENT, DEFAULT_PROGRAM, SUPPORTED_RAG_FILTERS
 from backend.app.db.models import Document, DocumentChunk, DocumentStatus
-from backend.app.schemas.rag import DEFAULT_DEPARTMENT, DEFAULT_PROGRAM, RagSearchResult
+from backend.app.schemas.rag import RagSearchResult
 from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, EmbeddingError, EmbeddingProvider
 
 
@@ -20,11 +21,23 @@ class SearchFilters:
     document_id: uuid.UUID | None = None
 
 
+class RagFilterError(ValueError):
+    pass
+
+
 def normalize_filters(filters: dict[str, Any]) -> SearchFilters:
     clean_filters = {key: value for key, value in filters.items() if value not in ("", None)}
+    unsupported = set(clean_filters) - SUPPORTED_RAG_FILTERS
+    if unsupported:
+        unsupported_names = ", ".join(sorted(unsupported))
+        raise RagFilterError(f"Unsupported filters: {unsupported_names}")
+
     document_id = clean_filters.get("document_id")
     if document_id:
-        document_id = uuid.UUID(str(document_id))
+        try:
+            document_id = uuid.UUID(str(document_id))
+        except ValueError as exc:
+            raise RagFilterError("Invalid document_id filter") from exc
 
     return SearchFilters(
         department=str(clean_filters.get("department", DEFAULT_DEPARTMENT)),

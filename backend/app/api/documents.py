@@ -42,7 +42,7 @@ def upload_document(
 
     validate_source_type = parse_source_type(source_type)
     try:
-        validate_supported_extension(file.filename)
+        validate_supported_extension(file.filename, settings.allowed_upload_extensions)
     except DocumentStorageError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -53,6 +53,7 @@ def upload_document(
             settings.document_storage_dir,
             document_id,
             file.filename,
+            settings.allowed_upload_extensions,
         )
     except DocumentStorageError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
@@ -130,7 +131,14 @@ def chunk_document_text(
 
     try:
         extracted_text = read_extracted_text(settings.extracted_text_dir, document.id)
-        chunks_created = replace_document_chunks(db, document, extracted_text, embedding_provider)
+        chunks_created = replace_document_chunks(
+            db,
+            document,
+            extracted_text,
+            embedding_provider,
+            chunk_size=settings.chunk_size,
+            overlap=settings.chunk_overlap,
+        )
     except (ChunkingError, EmbeddingError) as exc:
         db.rollback()
         document.status = DocumentStatus.failed.value

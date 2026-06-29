@@ -7,6 +7,7 @@ from pathlib import Path
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
+from backend.app.core.config import DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE
 from backend.app.db.models import Document, DocumentChunk
 from backend.app.services.embeddings import EmbeddingProvider
 
@@ -101,7 +102,11 @@ def split_text_window(text: str, chunk_size: int, overlap: int) -> list[str]:
     return chunks
 
 
-def create_chunks(text: str, chunk_size: int = 1000, overlap: int = 200) -> list[TextChunk]:
+def create_chunks(
+    text: str,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    overlap: int = DEFAULT_CHUNK_OVERLAP,
+) -> list[TextChunk]:
     if overlap >= chunk_size:
         raise ValueError("overlap must be smaller than chunk_size")
 
@@ -144,8 +149,10 @@ def build_document_chunks(
     document: Document,
     text: str,
     embedding_provider: EmbeddingProvider,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    overlap: int = DEFAULT_CHUNK_OVERLAP,
 ) -> list[DocumentChunk]:
-    chunks = create_chunks(text)
+    chunks = create_chunks(text, chunk_size=chunk_size, overlap=overlap)
     if not chunks:
         raise ChunkingError("No chunks were created")
 
@@ -177,8 +184,16 @@ def replace_document_chunks(
     document: Document,
     text: str,
     embedding_provider: EmbeddingProvider,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    overlap: int = DEFAULT_CHUNK_OVERLAP,
 ) -> int:
-    document_chunks = build_document_chunks(document, text, embedding_provider)
+    document_chunks = build_document_chunks(
+        document,
+        text,
+        embedding_provider,
+        chunk_size=chunk_size,
+        overlap=overlap,
+    )
     db.execute(delete(DocumentChunk).where(DocumentChunk.document_id == document.id))
     db.add_all(document_chunks)
     return len(document_chunks)

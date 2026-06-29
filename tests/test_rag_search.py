@@ -270,8 +270,18 @@ def test_search_rejects_unsupported_filters(client: TestClient) -> None:
         json={"query": "math requirements", "filters": {"campus": "main"}},
     )
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     assert "Unsupported filters" in str(response.json()["detail"])
+
+
+def test_search_rejects_invalid_document_id_filter(client: TestClient) -> None:
+    response = client.post(
+        "/rag/search",
+        json={"query": "math requirements", "filters": {"document_id": "not-a-uuid"}},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid document_id filter"
 
 
 def test_search_returns_empty_results_when_no_chunks_match(client: TestClient) -> None:
