@@ -1,4 +1,5 @@
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
+import { RagSearchPanel } from "@/components/rag/RagSearchPanel";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -47,7 +48,19 @@ export function DashboardTabs() {
         </Card>
       </TabsContent>
 
-      {panels.slice(1).map((panel) => (
+      <TabsContent value="search">
+        <Card>
+          <CardHeader>
+            <CardTitle>RAG Search</CardTitle>
+            <CardDescription>Search indexed document chunks and inspect retrieved evidence.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RagSearchPanel />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {panels.slice(2).map((panel) => (
         <TabsContent key={panel.value} value={panel.value}>
           <Card>
             <CardHeader>
