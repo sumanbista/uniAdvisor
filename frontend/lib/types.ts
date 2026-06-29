@@ -75,3 +75,31 @@ export type RagSearchResponse = {
   query: string;
   results: RagSearchResult[];
 };
+
+export type RagConfidence = "low" | "medium" | "high";
+
+export type RagAskRequest = {
+  question: string;
+  filters: RagFilters;
+  top_k: number;
+};
+
+export type RagAnswerSource = {
+  source_number: number;
+  chunk_id: string;
+  document_id: string;
+  document_title: string;
+  page_number?: number | null;
+  section_title?: string | null;
+  source_type: SourceType;
+};
+
+export type RagAskResponse = {
+  question: string;
+  answer: string;
+  confidence: RagConfidence;
+  refused: boolean;
+  refusal_reason?: string | null;
+  sources: RagAnswerSource[];
+  advisor_note?: string | null;
+};

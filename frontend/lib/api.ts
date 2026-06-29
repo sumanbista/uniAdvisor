@@ -3,6 +3,8 @@ import type {
   DocumentChunkResponse,
   DocumentExtractionResponse,
   DocumentUploadResponse,
+  RagAskRequest,
+  RagAskResponse,
   RagSearchRequest,
   RagSearchResponse,
 } from "@/lib/types";
@@ -59,6 +61,13 @@ export function chunkDocument(documentId: string) {
 
 export function searchRag(request: RagSearchRequest) {
   return apiFetch<RagSearchResponse>("/rag/search", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+export function askRag(request: RagAskRequest) {
+  return apiFetch<RagAskResponse>("/rag/ask", {
     method: "POST",
     body: JSON.stringify(request),
   });

@@ -1,6 +1,6 @@
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
+import { RagAskPanel } from "@/components/rag/RagAskPanel";
 import { RagSearchPanel } from "@/components/rag/RagSearchPanel";
-import { EmptyState } from "@/components/shared/EmptyState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -60,19 +60,17 @@ export function DashboardTabs() {
         </Card>
       </TabsContent>
 
-      {panels.slice(2).map((panel) => (
-        <TabsContent key={panel.value} value={panel.value}>
-          <Card>
-            <CardHeader>
-              <CardTitle>{panel.title}</CardTitle>
-              <CardDescription>Phase 1 placeholder panel</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <EmptyState title={panel.label} description={panel.description} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      ))}
+      <TabsContent value="ask">
+        <Card>
+          <CardHeader>
+            <CardTitle>Grounded Answers</CardTitle>
+            <CardDescription>Ask one grounded advising question and inspect source references.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RagAskPanel />
+          </CardContent>
+        </Card>
+      </TabsContent>
     </Tabs>
   );
 }
