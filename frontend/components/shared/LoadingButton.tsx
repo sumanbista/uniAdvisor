@@ -2,12 +2,13 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 
 type LoadingButtonProps = ButtonProps & {
   loading?: boolean;
+  loadingLabel?: string;
 };
 
-export function LoadingButton({ children, loading = false, disabled, ...props }: LoadingButtonProps) {
+export function LoadingButton({ children, loading = false, loadingLabel = "Loading...", disabled, ...props }: LoadingButtonProps) {
   return (
     <Button disabled={disabled || loading} {...props}>
-      {loading ? "Loading..." : children}
+      {loading ? loadingLabel : children}
     </Button>
   );
 }

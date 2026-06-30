@@ -3,8 +3,10 @@
 import { useState } from "react";
 
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
+import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { SourceTypeBadge } from "@/components/shared/SourceTypeBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { chunkDocument, extractDocument } from "@/lib/api";
@@ -70,12 +72,14 @@ export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWor
             <CardTitle>{document.title}</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">{document.file_name}</p>
           </div>
-          <StatusBadge status={document.status} />
+          <div className="flex flex-wrap gap-2">
+            <SourceTypeBadge sourceType={document.source_type} />
+            <StatusBadge status={document.status} />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
-          <DocumentField label="Source type" value={document.source_type} />
           <DocumentField label="Department" value={document.department} />
           <DocumentField label="Program" value={document.program} />
           <DocumentField label="Academic year" value={document.academic_year || "Not specified"} />
@@ -84,16 +88,22 @@ export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWor
 
         {document.error_message ? <ErrorMessage message={document.error_message} title="Document error" /> : null}
         {error ? <ErrorMessage message={error} /> : null}
-        {success ? <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{success}</p> : null}
+        {success ? <InfoNote title="Workflow update" tone="success">{success}</InfoNote> : null}
 
         <Separator />
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <LoadingButton loading={activeStep === "extract"} disabled={isProcessing} onClick={handleExtract}>
+          <LoadingButton
+            loading={activeStep === "extract"}
+            loadingLabel="Extracting text..."
+            disabled={isProcessing}
+            onClick={handleExtract}
+          >
             Extract Text
           </LoadingButton>
           <LoadingButton
             loading={activeStep === "chunk"}
+            loadingLabel="Chunking document..."
             disabled={isProcessing || !canChunk}
             onClick={handleChunk}
             variant="outline"

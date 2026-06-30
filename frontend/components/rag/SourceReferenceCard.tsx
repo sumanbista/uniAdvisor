@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SourceTypeBadge } from "@/components/shared/SourceTypeBadge";
 import type { RagAnswerSource } from "@/lib/types";
 
 type SourceReferenceCardProps = {
@@ -8,7 +8,7 @@ type SourceReferenceCardProps = {
 
 export function SourceReferenceCard({ source }: SourceReferenceCardProps) {
   return (
-    <Card>
+    <Card className="border-l-4 border-l-teal-700">
       <CardHeader className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -17,7 +17,7 @@ export function SourceReferenceCard({ source }: SourceReferenceCardProps) {
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">{source.document_id}</p>
           </div>
-          <Badge variant="secondary">{source.source_type}</Badge>
+          <SourceTypeBadge sourceType={source.source_type} />
         </div>
       </CardHeader>
       <CardContent>

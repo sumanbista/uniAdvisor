@@ -5,8 +5,8 @@ import { FormEvent, useState } from "react";
 import { SearchResultCard } from "@/components/rag/SearchResultCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
+import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { searchRag } from "@/lib/api";
 import type { ApiError, RagSearchResult, SourceType } from "@/lib/types";
@@ -67,12 +67,9 @@ export function RagSearchPanel() {
 
   return (
     <div className="space-y-4">
-      <Alert>
-        <AlertTitle>Retrieval only</AlertTitle>
-        <AlertDescription>
-          Search retrieves source chunks only. Use the Ask tab later to generate a grounded answer.
-        </AlertDescription>
-      </Alert>
+      <InfoNote title="Evidence retrieval">
+        Search retrieves source chunks only. Use the Ask tab later to generate a grounded answer.
+      </InfoNote>
 
       <Card>
         <CardHeader>
@@ -147,7 +144,7 @@ export function RagSearchPanel() {
 
             {error ? <ErrorMessage message={error} /> : null}
 
-            <LoadingButton loading={isSearching} type="submit">
+            <LoadingButton loading={isSearching} loadingLabel="Searching sources..." type="submit">
               Search
             </LoadingButton>
           </form>
@@ -158,6 +155,13 @@ export function RagSearchPanel() {
         <EmptyState
           title="No results"
           description="No matching chunks found. Try a different question or confirm the document has been extracted and chunked."
+        />
+      ) : null}
+
+      {results === null ? (
+        <EmptyState
+          title="Search indexed evidence"
+          description="Search indexed document chunks after at least one document has been extracted and chunked."
         />
       ) : null}
 

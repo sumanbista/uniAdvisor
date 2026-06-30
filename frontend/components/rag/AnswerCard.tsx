@@ -1,18 +1,13 @@
 import { SourceReferenceCard } from "@/components/rag/SourceReferenceCard";
 import { Badge } from "@/components/ui/badge";
+import { ConfidenceBadge } from "@/components/shared/ConfidenceBadge";
+import { InfoNote } from "@/components/shared/InfoNote";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { RagAskResponse, RagConfidence } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import type { RagAskResponse } from "@/lib/types";
 
 type AnswerCardProps = {
   answer: RagAskResponse;
-};
-
-const confidenceStyles: Record<RagConfidence, string> = {
-  high: "bg-emerald-700 text-white",
-  medium: "bg-secondary text-secondary-foreground",
-  low: "bg-amber-100 text-amber-900",
 };
 
 export function AnswerCard({ answer }: AnswerCardProps) {
@@ -20,15 +15,18 @@ export function AnswerCard({ answer }: AnswerCardProps) {
 
   return (
     <div className="space-y-4">
-      <Card className={answer.refused ? "border-amber-300 bg-amber-50" : undefined}>
+      <Card className={answer.refused ? "border-amber-300 bg-amber-50" : "border-l-4 border-l-primary"}>
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <CardTitle>{answer.refused ? "Answer Refused" : "Grounded Answer"}</CardTitle>
+              <p className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+                {answer.refused ? "Careful refusal" : "Generated from retrieved evidence"}
+              </p>
+              <CardTitle>{answer.refused ? "The system is being careful" : "Grounded Answer"}</CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">{answer.question}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Badge className={cn(confidenceStyles[answer.confidence])}>Confidence: {answer.confidence}</Badge>
+              <ConfidenceBadge confidence={answer.confidence} />
               {answer.refused ? <Badge className="bg-amber-200 text-amber-950">Refused</Badge> : null}
             </div>
           </div>
@@ -41,9 +39,7 @@ export function AnswerCard({ answer }: AnswerCardProps) {
           {answer.advisor_note ? (
             <>
               <Separator />
-              <div className="rounded-md border bg-background px-3 py-2 text-sm text-muted-foreground">
-                {answer.advisor_note}
-              </div>
+              <InfoNote title="Advisor note">{answer.advisor_note}</InfoNote>
             </>
           ) : null}
         </CardContent>
