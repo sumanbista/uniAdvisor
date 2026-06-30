@@ -1,6 +1,6 @@
 # uniAdvisor Frontend
 
-Phase 1 frontend foundation for the Computer Science advising RAG demo.
+Phase 1 evidence-first frontend for the Computer Science advising RAG demo.
 
 ## Stack
 
@@ -32,5 +32,7 @@ npm run lint
 npm run build
 ```
 
-The Phase 1 UI is being built incrementally. This foundation includes the app
-shell, dashboard tabs, placeholders, shared types, and generic API client only.
+The Phase 1 UI is being built incrementally as an evidence-first document
+intelligence console. It currently supports document processing, source
+retrieval, grounded ask responses, source references, and shared frontend API
+types.

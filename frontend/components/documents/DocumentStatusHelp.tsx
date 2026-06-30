@@ -1,13 +1,9 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoNote } from "@/components/shared/InfoNote";
 
 export function DocumentStatusHelp() {
   return (
-    <Alert>
-      <AlertTitle>Processing order</AlertTitle>
-      <AlertDescription>
-        After upload, run extraction first, then chunking. Chunking prepares the
-        document for RAG search and grounded answers.
-      </AlertDescription>
-    </Alert>
+    <InfoNote title="Processing order">
+      After upload, run extraction first, then chunking. Chunking prepares the document for RAG search and grounded answers.
+    </InfoNote>
   );
 }

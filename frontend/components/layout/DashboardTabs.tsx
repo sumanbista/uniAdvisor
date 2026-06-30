@@ -1,7 +1,7 @@
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { RagAskPanel } from "@/components/rag/RagAskPanel";
 import { RagSearchPanel } from "@/components/rag/RagSearchPanel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const panels = [
@@ -28,7 +28,7 @@ const panels = [
 export function DashboardTabs() {
   return (
     <Tabs defaultValue="documents" className="w-full">
-      <TabsList>
+      <TabsList className="w-full justify-start sm:w-auto">
         {panels.map((panel) => (
           <TabsTrigger key={panel.value} value={panel.value}>
             {panel.label}
@@ -37,39 +37,36 @@ export function DashboardTabs() {
       </TabsList>
 
       <TabsContent value="documents">
-        <Card>
-          <CardHeader>
-            <CardTitle>Document Processing</CardTitle>
-            <CardDescription>Upload, extract, and chunk one academic document at a time.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DocumentUploadForm />
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <SectionHeader
+            eyebrow="Pipeline manager"
+            title="Document Processing"
+            description="Upload, extract, and chunk one academic document at a time before searching or asking questions."
+          />
+          <DocumentUploadForm />
+        </div>
       </TabsContent>
 
       <TabsContent value="search">
-        <Card>
-          <CardHeader>
-            <CardTitle>RAG Search</CardTitle>
-            <CardDescription>Search indexed document chunks and inspect retrieved evidence.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RagSearchPanel />
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <SectionHeader
+            eyebrow="Evidence retrieval"
+            title="RAG Search"
+            description="Search indexed document chunks and inspect the sources before generating an answer."
+          />
+          <RagSearchPanel />
+        </div>
       </TabsContent>
 
       <TabsContent value="ask">
-        <Card>
-          <CardHeader>
-            <CardTitle>Grounded Answers</CardTitle>
-            <CardDescription>Ask one grounded advising question and inspect source references.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RagAskPanel />
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <SectionHeader
+            eyebrow="Answer verification"
+            title="Grounded Answers"
+            description="Ask one grounded advising question and inspect the answer, safety state, advisor note, and source references."
+          />
+          <RagAskPanel />
+        </div>
       </TabsContent>
     </Tabs>
   );

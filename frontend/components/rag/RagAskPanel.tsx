@@ -4,8 +4,8 @@ import { FormEvent, useState } from "react";
 
 import { AnswerCard } from "@/components/rag/AnswerCard";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
+import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { askRag } from "@/lib/api";
 import type { ApiError, RagAskResponse, SourceType } from "@/lib/types";
@@ -85,12 +85,9 @@ export function RagAskPanel() {
 
   return (
     <div className="space-y-4">
-      <Alert>
-        <AlertTitle>Grounded answers</AlertTitle>
-        <AlertDescription>
-          Answers are generated only from retrieved document chunks. Official academic decisions still require advisor or registrar review.
-        </AlertDescription>
-      </Alert>
+      <InfoNote title="Grounded answers">
+        Answers are generated only from retrieved document chunks. Official academic decisions still require advisor or registrar review.
+      </InfoNote>
 
       <Card>
         <CardHeader>
@@ -165,7 +162,7 @@ export function RagAskPanel() {
 
             {error ? <ErrorMessage message={error} /> : null}
 
-            <LoadingButton loading={isAsking} type="submit">
+            <LoadingButton loading={isAsking} loadingLabel="Generating grounded answer..." type="submit">
               Ask
             </LoadingButton>
           </form>

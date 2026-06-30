@@ -7,7 +7,7 @@ type ErrorMessageProps = {
 
 export function ErrorMessage({ title = "Something went wrong", message }: ErrorMessageProps) {
   return (
-    <Alert className="border-destructive/40 text-destructive">
+    <Alert className="border-destructive/30 bg-red-50 text-red-950 shadow-sm">
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{message}</AlertDescription>
     </Alert>

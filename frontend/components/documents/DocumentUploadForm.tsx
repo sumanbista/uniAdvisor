@@ -5,7 +5,9 @@ import { FormEvent, useMemo, useState } from "react";
 import { DocumentStatusHelp } from "@/components/documents/DocumentStatusHelp";
 import { DocumentWorkflowCard } from "@/components/documents/DocumentWorkflowCard";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
+import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { uploadDocument } from "@/lib/api";
 import type { ApiError, DocumentRecord, SourceType } from "@/lib/types";
@@ -130,9 +132,9 @@ export function DocumentUploadForm() {
               />
 
               {error ? <ErrorMessage message={error} /> : null}
-              {success ? <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{success}</p> : null}
+              {success ? <InfoNote title="Upload complete" tone="success">{success}</InfoNote> : null}
 
-              <LoadingButton loading={isUploading} type="submit">
+              <LoadingButton loading={isUploading} loadingLabel="Uploading..." type="submit">
                 Upload Document
               </LoadingButton>
             </form>
@@ -144,19 +146,29 @@ export function DocumentUploadForm() {
         {document ? (
           <DocumentWorkflowCard document={document} onDocumentChange={setDocument} />
         ) : (
-          <Card>
+          <Card className="border-dashed bg-white/70">
             <CardHeader>
-              <CardTitle>Workflow Card</CardTitle>
-              <CardDescription>Uploaded document metadata appears here.</CardDescription>
+              <SectionHeader
+                eyebrow="Pipeline manager"
+                title="No document uploaded yet"
+                description="Start by uploading an academic document. After upload, run extraction and chunking before using Search or Ask."
+              />
             </CardHeader>
-            <CardContent className="text-sm leading-6 text-muted-foreground">
-              Upload a supported academic document to run extraction and chunking manually.
+            <CardContent className="grid gap-3 text-sm text-muted-foreground">
+              <Step label="1. Upload" />
+              <Step label="2. Extract text" />
+              <Step label="3. Chunk document" />
+              <Step label="4. Search or ask with evidence" />
             </CardContent>
           </Card>
         )}
       </div>
     </div>
   );
+}
+
+function Step({ label }: { label: string }) {
+  return <div className="rounded-md border bg-background px-3 py-2">{label}</div>;
 }
 
 type TextInputProps = {
