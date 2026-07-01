@@ -154,6 +154,7 @@ def test_rag_ask_returns_grounded_answer_sources_and_query_log(
     assert payload["question"] == "What math courses are required for the Computer Science major?"
     assert payload["answer"] == "The uploaded documents say CS students complete Calculus I and Discrete Math. [Source 1]"
     assert payload["confidence"] == "medium"
+    assert payload["confidence_score"] == 100
     assert payload["refused"] is False
     assert payload["advisor_note"] == "This answer is based only on uploaded documents and is not an official degree audit."
     assert payload["sources"] == [
@@ -201,6 +202,7 @@ def test_rag_ask_refuses_and_logs_when_no_chunks_match(
     payload = response.json()
     assert payload["refused"] is True
     assert payload["confidence"] == "low"
+    assert payload["confidence_score"] == 0
     assert payload["sources"] == []
     assert "I cannot answer this from the uploaded documents" in payload["answer"]
     assert fake_llm.prompts == []
@@ -226,6 +228,7 @@ def test_rag_ask_refuses_and_logs_weak_evidence(
     payload = response.json()
     assert payload["refused"] is True
     assert payload["confidence"] == "low"
+    assert payload["confidence_score"] == 0
     assert len(payload["sources"]) == 1
     assert fake_llm.prompts == []
     assert fake_session.logs[0].refused is True
@@ -246,6 +249,7 @@ def test_rag_ask_refuses_high_impact_graduation_question(
     payload = response.json()
     assert payload["refused"] is True
     assert payload["confidence"] == "low"
+    assert payload["confidence_score"] == 0
     assert "official degree progress or graduation eligibility requires advisor or registrar review" in payload["answer"]
     assert fake_llm.prompts == []
     assert fake_session.logs[0].refused is True

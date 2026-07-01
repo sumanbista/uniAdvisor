@@ -81,6 +81,7 @@ class RagAskResponse(BaseModel):
     question: str
     answer: str
     confidence: str
+    confidence_score: int = Field(ge=0, le=100)
     refused: bool
     sources: list[RagSourceReference]
     advisor_note: str
