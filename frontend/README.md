@@ -43,3 +43,11 @@ Routes:
 /          Advisor/admin evidence console
 /student   Student-facing source-backed Q&A
 ```
+
+The Advisor Console lets advisors use Search and Ask against documents already
+indexed in the backend. The pipeline rail still marks newly performed workflow
+steps complete only after each real API step succeeds in the current session.
+
+The `/student` route uses the same live `/rag/ask` backend path as the advisor
+ask panel. Starter chips only fill the question field; submitting calls
+`askRag()` with the default Computer Science filters and `top_k = 5`.

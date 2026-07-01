@@ -5,7 +5,6 @@ import { FormEvent, useState } from "react";
 import { SearchResultCard } from "@/components/rag/SearchResultCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
-import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { searchRag } from "@/lib/api";
@@ -24,7 +23,11 @@ const sourceTypes: Array<{ value: SourceType; label: string }> = [
   { value: "other", label: "Other" },
 ];
 
-export function RagSearchPanel() {
+type RagSearchPanelProps = {
+  onSearchComplete?: () => void;
+};
+
+export function RagSearchPanel({ onSearchComplete }: RagSearchPanelProps) {
   const [query, setQuery] = useState("");
   const [topK, setTopK] = useState(String(DEFAULT_TOP_K));
   const [sourceType, setSourceType] = useState<SourceType | "">("");
@@ -57,6 +60,7 @@ export function RagSearchPanel() {
         top_k: parsedTopK,
       });
       setResults(response.results);
+      onSearchComplete?.();
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
       setError(apiError.message || "Search failed. Check that the backend is running and try again.");
@@ -67,13 +71,9 @@ export function RagSearchPanel() {
 
   return (
     <div className="space-y-4">
-      <InfoNote title="Evidence retrieval">
-        Search retrieves source chunks only. Use the Ask tab later to generate a grounded answer.
-      </InfoNote>
-
-      <Card>
+      <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
         <CardHeader>
-          <CardTitle>Search Indexed Chunks</CardTitle>
+          <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Search indexed chunks</CardTitle>
           <CardDescription>Inspect ranked evidence before answer generation.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -83,7 +83,7 @@ export function RagSearchPanel() {
                 Query
               </label>
               <textarea
-                className="min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))]"
                 id="rag-query"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="What math courses are required for the Computer Science major?"
@@ -145,7 +145,7 @@ export function RagSearchPanel() {
             {error ? <ErrorMessage message={error} /> : null}
 
             <LoadingButton loading={isSearching} loadingLabel="Searching sources..." type="submit">
-              Search
+              Search evidence
             </LoadingButton>
           </form>
         </CardContent>

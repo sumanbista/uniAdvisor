@@ -4,7 +4,6 @@ import { FormEvent, useState } from "react";
 
 import { AnswerCard } from "@/components/rag/AnswerCard";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
-import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { askRag } from "@/lib/api";
@@ -42,7 +41,11 @@ const examples: Array<{ label: string; question: string }> = [
   },
 ];
 
-export function RagAskPanel() {
+type RagAskPanelProps = {
+  onAskComplete?: () => void;
+};
+
+export function RagAskPanel({ onAskComplete }: RagAskPanelProps) {
   const [question, setQuestion] = useState("");
   const [topK, setTopK] = useState(String(DEFAULT_TOP_K));
   const [sourceType, setSourceType] = useState<SourceType | "">("");
@@ -75,6 +78,7 @@ export function RagAskPanel() {
         top_k: parsedTopK,
       });
       setAnswer(response);
+      onAskComplete?.();
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
       setError(apiError.message || "Ask request failed. Check that the backend and LLM provider are available.");
@@ -85,13 +89,9 @@ export function RagAskPanel() {
 
   return (
     <div className="space-y-4">
-      <InfoNote title="Grounded answers">
-        Answers are generated only from retrieved document chunks. Official academic decisions still require advisor or registrar review.
-      </InfoNote>
-
-      <Card>
+      <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
         <CardHeader>
-          <CardTitle>Ask a Grounded Question</CardTitle>
+          <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Ask a grounded question</CardTitle>
           <CardDescription>Submit one question against indexed Computer Science advising documents.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -101,7 +101,7 @@ export function RagAskPanel() {
                 Question
               </label>
               <textarea
-                className="min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))]"
                 id="rag-question"
                 onChange={(event) => setQuestion(event.target.value)}
                 placeholder="What math courses are required for the Computer Science major?"
@@ -163,13 +163,15 @@ export function RagAskPanel() {
             {error ? <ErrorMessage message={error} /> : null}
 
             <LoadingButton loading={isAsking} loadingLabel="Generating grounded answer..." type="submit">
-              Ask
+              Generate grounded answer
             </LoadingButton>
           </form>
         </CardContent>
       </Card>
 
-      {!answer ? <QuestionStarters onSelect={setQuestion} /> : (
+      {!answer ? (
+        <QuestionStarters onSelect={setQuestion} />
+      ) : (
         <AnswerCard answer={answer} />
       )}
     </div>
@@ -182,9 +184,9 @@ type QuestionStartersProps = {
 
 function QuestionStarters({ onSelect }: QuestionStartersProps) {
   return (
-    <Card>
+    <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
       <CardHeader>
-        <CardTitle>Ask about advising documents</CardTitle>
+        <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Ask about advising documents</CardTitle>
         <CardDescription>
           Start with one of these common Computer Science advising questions.
         </CardDescription>
@@ -193,7 +195,7 @@ function QuestionStarters({ onSelect }: QuestionStartersProps) {
         <div className="grid gap-3 sm:grid-cols-2">
           {examples.map((example) => (
             <button
-              className="rounded-lg border bg-background p-4 text-left transition-colors hover:border-primary hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-md border border-[hsl(var(--line))] bg-background p-4 text-left transition-colors hover:border-[hsl(var(--evidence-teal))] hover:bg-[hsl(var(--evidence-teal-tint))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))]"
               key={example.question}
               onClick={() => onSelect(example.question)}
               type="button"

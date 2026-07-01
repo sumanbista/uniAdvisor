@@ -7,6 +7,7 @@ import type {
   RagAskResponse,
   RagSearchRequest,
   RagSearchResponse,
+  StudentRagAskResponse,
 } from "@/lib/types";
 
 export const API_BASE_URL =
@@ -73,6 +74,29 @@ export function askRag(request: RagAskRequest) {
   });
 }
 
+export async function askStudentRag(request: RagAskRequest) {
+  const response = await fetch("/api/student/ask", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  const payload = await parseResponsePayload(response);
+
+  if (!response.ok) {
+    const apiError: ApiError = {
+      message: extractErrorMessage(payload, response.statusText),
+      status: response.status,
+      details: payload,
+    };
+    throw apiError;
+  }
+
+  return payload as StudentRagAskResponse;
+}
+
 function extractErrorMessage(payload: unknown, fallback: string): string {
   if (typeof payload === "string" && payload.trim()) {
     return payload;
@@ -84,4 +108,9 @@ function extractErrorMessage(payload: unknown, fallback: string): string {
     }
   }
   return fallback || "Request failed";
+}
+
+async function parseResponsePayload(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+  return contentType.includes("application/json") ? response.json() : response.text();
 }

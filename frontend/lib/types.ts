@@ -98,8 +98,15 @@ export type RagAskResponse = {
   question: string;
   answer: string;
   confidence: RagConfidence;
+  confidence_score: number;
   refused: boolean;
   refusal_reason?: string | null;
   sources: RagAnswerSource[];
   advisor_note?: string | null;
+};
+
+export type StudentRagAnswerSource = Omit<RagAnswerSource, "chunk_id" | "document_id">;
+
+export type StudentRagAskResponse = Omit<RagAskResponse, "sources"> & {
+  sources: StudentRagAnswerSource[];
 };
