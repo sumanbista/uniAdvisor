@@ -2,45 +2,46 @@ import { AppShell } from "@/components/layout/AppShell";
 import { StudentAskPanel } from "@/components/student/StudentAskPanel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 export default function StudentPage() {
   return (
     <AppShell>
-      <section className="space-y-5">
-        <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle>What can uniAdvisor help you understand?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm leading-6 text-muted-foreground">
-              Ask questions about uploaded Computer Science advising documents and
-              review answers with source references. uniAdvisor explains what the
-              documents say, where the information appears, and what to confirm
-              with an advisor.
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Student View</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                <Badge>Guidance-first</Badge>
-                <Badge variant="secondary">Source-backed</Badge>
-                <Badge variant="outline">Advisor review</Badge>
-              </div>
-              <Separator />
-              <p className="text-sm text-muted-foreground">
-                Answers are based only on uploaded documents and are not official
-                graduation, registration, or degree-audit decisions.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      <section className="space-y-5 overflow-hidden">
+        <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
+          <CardHeader className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              <Badge className="bg-[hsl(var(--evidence-teal-tint))] text-[hsl(var(--evidence-teal))]">
+                Guidance-first
+              </Badge>
+              <Badge variant="outline">Source-backed</Badge>
+              <Badge variant="outline">Advisor review</Badge>
+            </div>
+            <CardTitle className="font-serif text-2xl text-[hsl(var(--ink-navy))]">
+              Ask about your CS requirements
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-[hsl(var(--slate))]">
+            <p>
+              uniAdvisor answers only from uploaded Computer Science advising documents,
+              then points you to the sources and the questions that still need an advisor.
+            </p>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              <Badge className="shrink-0 bg-[hsl(var(--evidence-teal-tint))] text-[hsl(var(--evidence-teal))]">
+                ✓ Explains what uploaded documents say
+              </Badge>
+              <Badge className="shrink-0 border-[hsl(var(--line))] bg-[hsl(var(--verify-amber-tint))] text-[hsl(var(--verify-amber))]">
+                ✕ Not a degree audit or registration decision
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
 
         <StudentAskPanel />
+
+        <p className="text-xs leading-5 text-[hsl(var(--slate))]">
+          uniAdvisor summarizes uploaded advising documents. Confirm official graduation,
+          registration, prerequisite, and degree-audit decisions with a human advisor.
+        </p>
       </section>
     </AppShell>
   );

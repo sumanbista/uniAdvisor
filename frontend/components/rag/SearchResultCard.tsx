@@ -11,20 +11,21 @@ type SearchResultCardProps = {
 
 export function SearchResultCard({ result, rank }: SearchResultCardProps) {
   return (
-    <Card className="border-l-4 border-l-primary">
+    <Card className="border-l-4 border-l-[hsl(var(--evidence-teal))] bg-[hsl(var(--paper))] shadow-sm">
       <CardHeader className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">Evidence {rank}</p>
-            <CardTitle className="leading-6">
+            <p className="text-xs font-semibold uppercase tracking-normal text-[hsl(var(--slate))]">
+              Retrieved evidence {rank}
+            </p>
+            <CardTitle className="font-serif text-xl leading-6 text-[hsl(var(--ink-navy))]">
               {result.document_title}
             </CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">{result.document_id}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <SourceTypeBadge sourceType={result.source_type} />
             {typeof result.score === "number" ? (
-              <Badge className="bg-accent text-accent-foreground" variant="secondary">
+              <Badge className="bg-[hsl(var(--verify-amber-tint))] font-mono text-[hsl(var(--verify-amber))]" variant="secondary">
                 Score: {result.score.toFixed(2)}
               </Badge>
             ) : null}
@@ -33,16 +34,16 @@ export function SearchResultCard({ result, rank }: SearchResultCardProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-          <Metadata label="Page" value={result.page_number ? String(result.page_number) : "Not specified"} />
-          <Metadata label="Section" value={result.section_title || "Not specified"} />
-          <Metadata label="Academic year" value={result.academic_year || "Not specified"} />
+          {result.page_number ? <Metadata label="Page" value={String(result.page_number)} /> : null}
+          {result.section_title ? <Metadata label="Section" value={result.section_title} /> : null}
+          {result.academic_year ? <Metadata label="Academic year" value={result.academic_year} /> : null}
           <Metadata label="Department" value={result.department} />
           <Metadata label="Program" value={result.program} />
         </div>
 
         <Separator />
 
-        <blockquote className="rounded-md border bg-muted/30 px-4 py-3 text-sm leading-6 text-foreground">
+        <blockquote className="rounded-md border border-[hsl(var(--line))] bg-background px-4 py-3 text-sm leading-7 text-foreground">
           <p className="whitespace-pre-wrap">{result.text}</p>
         </blockquote>
       </CardContent>

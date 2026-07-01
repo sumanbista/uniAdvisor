@@ -11,18 +11,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { chunkDocument, extractDocument } from "@/lib/api";
 import type { ApiError, DocumentRecord } from "@/lib/types";
+import type { WorkflowProgress } from "@/components/layout/WorkflowStrip";
 
 type DocumentWorkflowCardProps = {
   document: DocumentRecord;
   onDocumentChange: (document: DocumentRecord) => void;
+  onWorkflowProgress?: (progress: Partial<WorkflowProgress>) => void;
 };
 
 type WorkflowStep = "extract" | "chunk" | null;
 
-export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWorkflowCardProps) {
+export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowProgress }: DocumentWorkflowCardProps) {
   const [activeStep, setActiveStep] = useState<WorkflowStep>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [extractComplete, setExtractComplete] = useState(false);
+  const [chunkComplete, setChunkComplete] = useState(false);
   const isProcessing = activeStep !== null || document.status === "processing";
   const canChunk = document.status === "ready";
 
@@ -35,6 +39,9 @@ export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWor
     try {
       const response = await extractDocument(document.id);
       onDocumentChange({ ...document, status: response.status, error_message: null });
+      setExtractComplete(true);
+      setChunkComplete(false);
+      onWorkflowProgress?.({ extracted: true, chunked: false, searched: false, asked: false });
       setSuccess("Text extraction completed.");
     } catch (caught) {
       const message = getErrorMessage(caught, "Extract failed.");
@@ -54,6 +61,8 @@ export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWor
     try {
       const response = await chunkDocument(document.id);
       onDocumentChange({ ...document, status: response.status, error_message: null });
+      setChunkComplete(true);
+      onWorkflowProgress?.({ chunked: true, searched: false, asked: false });
       setSuccess(`Chunking completed. Created ${response.chunks_created} chunk${response.chunks_created === 1 ? "" : "s"}.`);
     } catch (caught) {
       const message = getErrorMessage(caught, "Chunking failed.");
@@ -65,12 +74,12 @@ export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWor
   }
 
   return (
-    <Card>
+    <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
       <CardHeader className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <CardTitle>{document.title}</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">{document.file_name}</p>
+            <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">{document.title}</CardTitle>
+            <p className="mt-1 text-sm text-[hsl(var(--slate))]">{document.file_name}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <SourceTypeBadge sourceType={document.source_type} />
@@ -83,12 +92,21 @@ export function DocumentWorkflowCard({ document, onDocumentChange }: DocumentWor
           <DocumentField label="Department" value={document.department} />
           <DocumentField label="Program" value={document.program} />
           <DocumentField label="Academic year" value={document.academic_year || "Not specified"} />
-          <DocumentField className="sm:col-span-2" label="Document ID" value={document.id} />
+          <DocumentField label="Status" value={document.status} />
         </dl>
 
         {document.error_message ? <ErrorMessage message={document.error_message} title="Document error" /> : null}
         {error ? <ErrorMessage message={error} /> : null}
         {success ? <InfoNote title="Workflow update" tone="success">{success}</InfoNote> : null}
+
+        <Separator />
+
+        <div className="grid gap-2 text-sm">
+          <ChecklistItem done label="Upload" />
+          <ChecklistItem done={extractComplete} label="Extract text" />
+          <ChecklistItem done={chunkComplete} label="Chunk document" />
+          <ChecklistItem done={chunkComplete} label="Search or ask with evidence" />
+        </div>
 
         <Separator />
 
@@ -127,6 +145,23 @@ function DocumentField({ label, value, className }: DocumentFieldProps) {
     <div className={className}>
       <dt className="font-medium text-muted-foreground">{label}</dt>
       <dd className="mt-1 break-words text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+function ChecklistItem({ done, label }: { done: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-[hsl(var(--line))] bg-background px-3 py-2">
+      <span
+        className={
+          done
+            ? "flex h-5 w-5 items-center justify-center rounded-full bg-[hsl(var(--evidence-teal))] text-xs font-semibold text-white"
+            : "flex h-5 w-5 items-center justify-center rounded-full border border-[hsl(var(--line))] text-xs font-semibold text-[hsl(var(--slate))]"
+        }
+      >
+        {done ? "✓" : "-"}
+      </span>
+      <span className={done ? "text-[hsl(var(--ink-navy))]" : "text-[hsl(var(--slate))]"}>{label}</span>
     </div>
   );
 }

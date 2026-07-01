@@ -22,6 +22,17 @@
     --input: 39 24% 84%;
     --ring: 219 60% 18%;
     --radius: 0.5rem;
+    --ink-navy: 219 50% 16%;
+    --ink-navy-70: 222 29% 33%;
+    --parchment: 44 33% 95%;
+    --paper: 0 0% 100%;
+    --evidence-teal: 169 41% 31%;
+    --evidence-teal-tint: 146 28% 92%;
+    --verify-amber: 32 71% 42%;
+    --verify-amber-tint: 34 68% 91%;
+    --slate: 217 11% 40%;
+    --line: 42 24% 86%;
+    --focus-blue: 220 69% 39%;
   }
 
   * {

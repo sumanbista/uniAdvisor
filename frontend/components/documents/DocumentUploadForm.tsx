@@ -2,8 +2,8 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
-import { DocumentStatusHelp } from "@/components/documents/DocumentStatusHelp";
 import { DocumentWorkflowCard } from "@/components/documents/DocumentWorkflowCard";
+import type { WorkflowProgress } from "@/components/layout/WorkflowStrip";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
 import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
@@ -24,7 +24,11 @@ const sourceTypes: Array<{ value: SourceType; label: string }> = [
 
 const supportedExtensions = [".pdf", ".txt", ".md"];
 
-export function DocumentUploadForm() {
+type DocumentUploadFormProps = {
+  onProgressChange?: (progress: Partial<WorkflowProgress>) => void;
+};
+
+export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [sourceType, setSourceType] = useState<SourceType>("major_checksheet");
@@ -63,6 +67,7 @@ export function DocumentUploadForm() {
     try {
       const uploadedDocument = await uploadDocument(formData);
       setDocument(uploadedDocument);
+      onProgressChange?.({ uploaded: true, extracted: false, chunked: false, searched: false, asked: false });
       setSuccess("Document uploaded. Run extraction to continue.");
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
@@ -75,10 +80,9 @@ export function DocumentUploadForm() {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
       <div className="space-y-4">
-        <DocumentStatusHelp />
-        <Card>
+        <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
           <CardHeader>
-            <CardTitle>Upload Document</CardTitle>
+            <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Upload document</CardTitle>
             <CardDescription>Supported files: .pdf, .txt, and .md</CardDescription>
           </CardHeader>
           <CardContent>
@@ -135,7 +139,7 @@ export function DocumentUploadForm() {
               {success ? <InfoNote title="Upload complete" tone="success">{success}</InfoNote> : null}
 
               <LoadingButton loading={isUploading} loadingLabel="Uploading..." type="submit">
-                Upload Document
+                Upload document
               </LoadingButton>
             </form>
           </CardContent>
@@ -144,9 +148,13 @@ export function DocumentUploadForm() {
 
       <div>
         {document ? (
-          <DocumentWorkflowCard document={document} onDocumentChange={setDocument} />
+          <DocumentWorkflowCard
+            document={document}
+            onDocumentChange={setDocument}
+            onWorkflowProgress={onProgressChange}
+          />
         ) : (
-          <Card className="border-dashed bg-white/70">
+          <Card className="border-dashed border-[hsl(var(--line))] bg-white/70 shadow-sm">
             <CardHeader>
               <SectionHeader
                 eyebrow="Pipeline manager"
@@ -168,7 +176,7 @@ export function DocumentUploadForm() {
 }
 
 function Step({ label }: { label: string }) {
-  return <div className="rounded-md border bg-background px-3 py-2">{label}</div>;
+  return <div className="rounded-md border border-[hsl(var(--line))] bg-background px-3 py-2">{label}</div>;
 }
 
 type TextInputProps = {
@@ -187,7 +195,7 @@ function TextInput({ id, label, value, onChange, placeholder, required = false }
         {label}
       </label>
       <input
-        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+        className="h-10 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))]"
         id={id}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
