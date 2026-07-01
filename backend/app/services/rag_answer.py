@@ -54,6 +54,7 @@ def answer_question(
             question=question,
             answer=REFUSAL_ANSWER,
             confidence=RagConfidence.low.value,
+            confidence_score=confidence_score_for(evidence_chunks),
             refused=True,
             sources=source_references(evidence_chunks),
             advisor_note=ADVISOR_NOTE,
@@ -68,6 +69,7 @@ def answer_question(
             question=question,
             answer=REFUSAL_ANSWER,
             confidence=RagConfidence.low.value,
+            confidence_score=confidence_score_for(evidence_chunks),
             refused=True,
             sources=source_references(evidence_chunks),
             advisor_note=ADVISOR_NOTE,
@@ -79,6 +81,7 @@ def answer_question(
         question=question,
         answer=answer,
         confidence=confidence_for(evidence_chunks),
+        confidence_score=confidence_score_for(evidence_chunks),
         refused=False,
         sources=source_references(evidence_chunks),
         advisor_note=ADVISOR_NOTE,
@@ -107,6 +110,13 @@ def confidence_for(chunks: list[RagSearchResult]) -> str:
     if chunks:
         return RagConfidence.medium.value
     return RagConfidence.low.value
+
+
+def confidence_score_for(chunks: list[RagSearchResult]) -> int:
+    if not chunks:
+        return 0
+    strongest_score = max(chunk.score for chunk in chunks)
+    return round(max(0.0, min(1.0, strongest_score)) * 100)
 
 
 def source_references(chunks: list[RagSearchResult]) -> list[RagSourceReference]:

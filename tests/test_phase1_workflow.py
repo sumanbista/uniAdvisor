@@ -175,6 +175,7 @@ def test_full_phase1_workflow_upload_extract_chunk_search_ask_and_log(
     assert ask_response.status_code == 200
     ask_payload = ask_response.json()
     assert ask_payload["refused"] is False
+    assert ask_payload["confidence_score"] == 100
     assert ask_payload["sources"][0]["document_id"] == document_id
     assert ask_payload["sources"][0]["source_number"] == 1
     assert "CS 196" in ask_payload["answer"]
