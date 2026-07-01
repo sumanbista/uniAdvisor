@@ -36,3 +36,10 @@ The Phase 1 UI is being built incrementally as an evidence-first document
 intelligence console. It currently supports document processing, source
 retrieval, grounded ask responses, source references, and shared frontend API
 types.
+
+Routes:
+
+```text
+/          Advisor/admin evidence console
+/student   Student-facing source-backed Q&A
+```
