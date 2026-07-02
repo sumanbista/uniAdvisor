@@ -35,7 +35,7 @@ The system is intentionally designed as more than a simple chatbot. It separates
 ### In Scope
 
 * Computer Science department documents only
-* Local document storage
+* Local document storage by default, with optional Supabase Storage for deployment
 * PDF, TXT, and Markdown upload
 * Text extraction
 * Document chunking
@@ -170,6 +170,7 @@ sequenceDiagram
 * pypdf
 * sentence-transformers
 * Groq API
+* Optional Supabase Storage
 * pytest
 
 ---
@@ -314,7 +315,7 @@ program = Computer Science
 POST /documents/{document_id}/extract
 ```
 
-This extracts readable text and stores it under the configured extracted text directory.
+This extracts readable text and stores it through the configured storage provider.
 
 ---
 
@@ -409,13 +410,50 @@ Common settings include:
 COURSECOMPASS_DATABASE_URL=
 GROQ_API_KEY=
 COURSECOMPASS_GROQ_MODEL=
+STORAGE_PROVIDER=local
 COURSECOMPASS_DOCUMENT_STORAGE_DIR=
 COURSECOMPASS_EXTRACTED_TEXT_DIR=
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_STORAGE_BUCKET=uniadvisor-documents
 COURSECOMPASS_ALLOWED_UPLOAD_EXTENSIONS=
 COURSECOMPASS_CHUNK_SIZE=
 COURSECOMPASS_CHUNK_OVERLAP=
 COURSECOMPASS_CORS_ORIGINS=
 ```
+
+`STORAGE_PROVIDER` defaults to `local`. Use local storage for development unless you are testing deployment-like persistence. `COURSECOMPASS_STORAGE_PROVIDER` is also accepted as a project-prefixed alias.
+
+For Supabase Storage, set:
+
+```text
+STORAGE_PROVIDER=supabase
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<backend-only-service-role-key>
+SUPABASE_STORAGE_BUCKET=uniadvisor-documents
+```
+
+`SUPABASE_SERVICE_ROLE_KEY` is backend-only and must never be exposed to frontend code, committed to the repo, or added to any `NEXT_PUBLIC_*` variable.
+
+Supabase Storage uses one private bucket named `uniadvisor-documents`. Object paths are:
+
+```text
+uploads/{document_id}/{safe_filename}
+extracted/{document_id}.txt
+```
+
+When `STORAGE_PROVIDER=supabase`, `documents.file_path` stores the uploaded object path such as `uploads/<document_id>/major-checksheet.pdf`. Search and Ask still use database chunks and do not read files from storage.
+
+Manual Supabase setup:
+
+1. Open the Supabase project.
+2. Create a Storage bucket named `uniadvisor-documents`.
+3. Keep the bucket private.
+4. Copy the project URL into backend `SUPABASE_URL`.
+5. Copy the service role key into backend `SUPABASE_SERVICE_ROLE_KEY` only.
+6. Set `STORAGE_PROVIDER=supabase` in the backend deployment environment.
+
+No frontend Supabase configuration is required for this phase.
 
 ---
 

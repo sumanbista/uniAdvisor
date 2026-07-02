@@ -8,10 +8,15 @@ from backend.app.core.config import Settings, get_settings
 from backend.app.db.models import Document, DocumentStatus, SourceType
 from backend.app.db.session import get_db
 from backend.app.schemas.documents import ChunkingResponse, DocumentResponse, ExtractionResponse
-from backend.app.services.chunking import ChunkingError, read_extracted_text, replace_document_chunks
-from backend.app.services.document_storage import DocumentStorageError, save_uploaded_file, validate_supported_extension
+from backend.app.services.chunking import ChunkingError, replace_document_chunks
+from backend.app.services.document_storage import (
+    DocumentStorageError,
+    StorageProvider,
+    get_storage_provider,
+    validate_supported_extension,
+)
 from backend.app.services.embeddings import EmbeddingError, EmbeddingProvider, get_embedding_provider
-from backend.app.services.text_extraction import TextExtractionError, extract_to_file
+from backend.app.services.text_extraction import TextExtractionError, extract_to_storage
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -36,6 +41,7 @@ def upload_document(
     academic_year: str | None = Form(None),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    storage_provider: StorageProvider = Depends(get_storage_provider),
 ) -> Document:
     if not file.filename:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing file name")
@@ -48,12 +54,10 @@ def upload_document(
 
     document_id = uuid.uuid4()
     try:
-        stored_path = save_uploaded_file(
-            file.file,
-            settings.document_storage_dir,
+        stored_path = storage_provider.save_uploaded_file(
             document_id,
             file.filename,
-            settings.allowed_upload_extensions,
+            file.file.read(),
         )
     except DocumentStorageError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
@@ -62,7 +66,7 @@ def upload_document(
         id=document_id,
         title=title,
         file_name=Path(file.filename).name,
-        file_path=str(stored_path),
+        file_path=stored_path,
         source_type=validate_source_type,
         department=department or "Computer Science",
         program=program or "Computer Science",
@@ -79,7 +83,7 @@ def upload_document(
 def extract_document_text(
     document_id: uuid.UUID,
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
+    storage_provider: StorageProvider = Depends(get_storage_provider),
 ) -> ExtractionResponse:
     document = db.get(Document, document_id)
     if document is None:
@@ -90,12 +94,12 @@ def extract_document_text(
     db.commit()
 
     try:
-        output_path, character_count = extract_to_file(
-            Path(document.file_path),
-            settings.extracted_text_dir,
+        output_path, character_count = extract_to_storage(
+            document.file_path,
+            storage_provider,
             document.id,
         )
-    except TextExtractionError as exc:
+    except (DocumentStorageError, TextExtractionError) as exc:
         document.status = DocumentStatus.failed.value
         document.error_message = str(exc)[:500]
         db.commit()
@@ -119,6 +123,7 @@ def chunk_document_text(
     document_id: uuid.UUID,
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    storage_provider: StorageProvider = Depends(get_storage_provider),
     embedding_provider: EmbeddingProvider = Depends(get_embedding_provider),
 ) -> ChunkingResponse:
     document = db.get(Document, document_id)
@@ -130,7 +135,7 @@ def chunk_document_text(
     db.commit()
 
     try:
-        extracted_text = read_extracted_text(settings.extracted_text_dir, document.id)
+        extracted_text = storage_provider.read_extracted_text(document.id)
         chunks_created = replace_document_chunks(
             db,
             document,
@@ -139,7 +144,7 @@ def chunk_document_text(
             chunk_size=settings.chunk_size,
             overlap=settings.chunk_overlap,
         )
-    except (ChunkingError, EmbeddingError) as exc:
+    except (DocumentStorageError, ChunkingError, EmbeddingError) as exc:
         db.rollback()
         document.status = DocumentStatus.failed.value
         document.error_message = str(exc)[:500]

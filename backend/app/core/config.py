@@ -17,6 +17,7 @@ DEFAULT_PROGRAM = "Computer Science"
 DEFAULT_TOP_K = 5
 MAX_TOP_K = 20
 SUPPORTED_RAG_FILTERS = frozenset({"department", "program", "source_type", "academic_year", "document_id"})
+SUPPORTED_STORAGE_PROVIDERS = frozenset({"local", "supabase"})
 
 
 def normalize_database_url(database_url: str) -> str:
@@ -57,6 +58,13 @@ class Settings:
         self.extracted_text_dir = Path(
             os.getenv("COURSECOMPASS_EXTRACTED_TEXT_DIR", "backend/storage/extracted")
         )
+        self.storage_provider = os.getenv(
+            "STORAGE_PROVIDER",
+            os.getenv("COURSECOMPASS_STORAGE_PROVIDER", "local"),
+        ).strip().lower()
+        self.supabase_url = os.getenv("SUPABASE_URL")
+        self.supabase_service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        self.supabase_storage_bucket = os.getenv("SUPABASE_STORAGE_BUCKET")
         self.allowed_upload_extensions = parse_extensions(os.getenv("COURSECOMPASS_ALLOWED_UPLOAD_EXTENSIONS"))
         self.chunk_size = int(os.getenv("COURSECOMPASS_CHUNK_SIZE", str(DEFAULT_CHUNK_SIZE)))
         self.chunk_overlap = int(os.getenv("COURSECOMPASS_CHUNK_OVERLAP", str(DEFAULT_CHUNK_OVERLAP)))
