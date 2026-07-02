@@ -1,5 +1,5 @@
 [project]
-name = "coursecompass-ai"
+name = "uniAdvisor"
 version = "0.1.0"
 description = "Phase 1 RAG foundation for Computer Science advising documents."
 requires-python = ">=3.11"

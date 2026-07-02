@@ -7,17 +7,19 @@ type ConfidenceRibbonProps = {
 };
 
 export function ConfidenceRibbon({ confidence, confidenceScore }: ConfidenceRibbonProps) {
-  const percent = normalizePercent(confidenceScore);
-  const display = displayForPercent(percent, confidence);
+  const hasScore = typeof confidenceScore === "number" && !Number.isNaN(confidenceScore);
+  const percent = hasScore ? normalizePercent(confidenceScore) : 0;
+  const display = displayForPercent(percent, confidence, hasScore);
+  const scoreLabel = hasScore ? `${percent}% match` : "Score unavailable";
 
   return (
     <section
-      aria-label={`Confidence: ${display.label}, ${percent}% match`}
+      aria-label={`Confidence: ${display.label}, ${scoreLabel}`}
       className="rounded-md border border-[hsl(var(--line))] bg-[hsl(var(--paper))] p-4 shadow-sm"
     >
       <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
         <p className={cn("text-sm font-semibold", display.tone)}>{display.label}</p>
-        <p className="font-mono text-sm font-semibold text-[hsl(var(--ink-navy))]">{percent}% match</p>
+        <p className="font-mono text-sm font-semibold text-[hsl(var(--ink-navy))]">{scoreLabel}</p>
       </div>
 
       <div className="mt-4" aria-hidden="true">
@@ -46,14 +48,20 @@ function normalizePercent(value?: number | null) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function displayForPercent(percent: number, confidence?: RagConfidence | null) {
-  if (percent >= 75 || confidence === "high") {
+function displayForPercent(percent: number, confidence?: RagConfidence | null, hasScore = true) {
+  if (!hasScore && confidence) {
+    return {
+      label: `Returned confidence: ${confidence}`,
+      tone: confidence === "low" ? "text-[hsl(var(--verify-amber))]" : "text-[hsl(var(--ink-navy-70))]",
+    };
+  }
+  if (percent >= 75) {
     return {
       label: "Strong source match",
       tone: "text-[hsl(var(--evidence-teal))]",
     };
   }
-  if (percent >= 35 || confidence === "medium") {
+  if (percent >= 35) {
     return {
       label: "Partial source match",
       tone: "text-[hsl(var(--ink-navy-70))]",

@@ -4,7 +4,7 @@ uniAdvisor is a production-style academic advising RAG system.
 
 The goal of the project is to help students and advisors ask questions about academic documents such as course catalogs, four-year plans, major checksheets, degree audits, and degree requirement documents.
 
-Phase 1 focuses only on the backend RAG foundation for Computer Science advising documents.
+Phase 1 focuses on the RAG foundation for uploaded Computer Science advising documents and now includes a local Advisor Console and Student View in the frontend.
 
 It supports:
 
@@ -18,7 +18,7 @@ It supports:
 * Refusal handling for unsupported academic decisions
 * RAG query logging
 
-Phase 1 does not include frontend UI, prerequisite tools, degree-audit logic, semester planning, or multi-tool agents yet.
+Phase 1 does not include authentication, transcript access, prerequisite tools, official degree-audit logic, semester planning, or multi-tool agents yet.
 
 ---
 
@@ -50,8 +50,8 @@ The system is intentionally designed as more than a simple chatbot. It separates
 
 ### Out of Scope
 
-* Frontend UI
 * User authentication
+* Transcript access
 * Student profiles
 * Personalized degree audits
 * Prerequisite checking
@@ -406,19 +406,15 @@ Create a `.env` file based on `.env.example`.
 Common settings include:
 
 ```text
-DATABASE_URL=
+COURSECOMPASS_DATABASE_URL=
 GROQ_API_KEY=
-GROQ_MODEL=
-UPLOAD_DIR=
-EXTRACTED_TEXT_DIR=
-ALLOWED_UPLOAD_EXTENSIONS=
-EMBEDDING_MODEL_NAME=
-EMBEDDING_DIMENSION=
-CHUNK_SIZE=
-CHUNK_OVERLAP=
-RAG_DEFAULT_DEPARTMENT=
-RAG_DEFAULT_PROGRAM=
-RAG_DEFAULT_TOP_K=
+COURSECOMPASS_GROQ_MODEL=
+COURSECOMPASS_DOCUMENT_STORAGE_DIR=
+COURSECOMPASS_EXTRACTED_TEXT_DIR=
+COURSECOMPASS_ALLOWED_UPLOAD_EXTENSIONS=
+COURSECOMPASS_CHUNK_SIZE=
+COURSECOMPASS_CHUNK_OVERLAP=
+COURSECOMPASS_CORS_ORIGINS=
 ```
 
 ---
@@ -428,19 +424,19 @@ RAG_DEFAULT_TOP_K=
 Install dependencies:
 
 ```bash
-python3 -m pip install -e .
+.venv/bin/python -m pip install -e '.[dev]'
 ```
 
 Run database migrations:
 
 ```bash
-alembic upgrade head
+.venv/bin/python -m alembic upgrade head
 ```
 
 Start the API:
 
 ```bash
-uvicorn backend.app.main:app --reload
+.venv/bin/python -m uvicorn backend.app.main:app --reload
 ```
 
 API docs should be available at:
@@ -456,13 +452,13 @@ http://localhost:8000/docs
 Run all tests:
 
 ```bash
-python3 -m pytest
+.venv/bin/python -m pytest
 ```
 
 Compile backend code:
 
 ```bash
-python3 -m compileall backend
+.venv/bin/python -m compileall backend
 ```
 
 Expected validation after Phase 1 hardening:
@@ -506,18 +502,16 @@ upload
 
 ## Current Development Status
 
-Completed Phase 1 backend milestones:
+Completed Phase 1 milestones:
 
 * Data model foundation
 * Document upload and text extraction
 * Chunking and embedding pipeline
 * RAG search
 * Grounded answer generation
+* Backend-derived confidence score
+* Advisor Console and Student View integration
 * Phase 1 hardening and code quality pass
-
-Next planned milestone:
-
-* Phase 1 frontend UI
 
 Future backend phases may include:
 
