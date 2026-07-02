@@ -37,6 +37,8 @@ Backend: FastAPI, SQLAlchemy, Alembic, PostgreSQL, pgvector, sentence-transforme
 
 Frontend: Next.js, TypeScript, Tailwind CSS, and shadcn/ui-style components.
 
+Storage: local filesystem by default for development, with optional backend-only Supabase Storage for deployments.
+
 ## Routes
 
 Backend:
@@ -74,7 +76,7 @@ npm install
 npm run dev
 ```
 
-Use `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` for the frontend and configure the backend `.env` with `COURSECOMPASS_DATABASE_URL`, `GROQ_API_KEY`, and `COURSECOMPASS_GROQ_MODEL`.
+Use `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` for the frontend and configure the backend `.env` with `COURSECOMPASS_DATABASE_URL`, `GROQ_API_KEY`, and `COURSECOMPASS_GROQ_MODEL`. For production storage, set `STORAGE_PROVIDER=supabase`, `SUPABASE_URL`, backend-only `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=uniadvisor-documents` in the backend environment.
 
 ## Demo Flow
 
@@ -134,7 +136,7 @@ Can you approve my degree audit?
 - No prerequisite checker yet
 - No semester planner yet
 - No multi-tool agent yet
-- No deployment details are documented for Phase 1
+- Direct frontend uploads to storage are not supported
 
 ## Validation
 
