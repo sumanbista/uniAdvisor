@@ -1,1 +1,1 @@
-"""CourseCompass AI backend package."""
+"""uniAdvisor backend package."""

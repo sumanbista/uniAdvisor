@@ -4,13 +4,21 @@ import type { RagAnswerSource, RagAskResponse, StudentRagAnswerSource, StudentRa
 export async function POST(request: Request) {
   const body = await request.text();
 
-  const backendResponse = await fetch(`${API_BASE_URL}/rag/ask`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body,
-  });
+  let backendResponse: Response;
+  try {
+    backendResponse = await fetch(`${API_BASE_URL}/rag/ask`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+  } catch {
+    return Response.json(
+      { detail: "Student ask request failed. Check that the backend is running and try again." },
+      { status: 503 },
+    );
+  }
 
   const contentType = backendResponse.headers.get("content-type") ?? "";
   const payload = contentType.includes("application/json")

@@ -50,6 +50,7 @@ export function StudentAskPanel() {
     }
 
     setIsAsking(true);
+    setAnswer(null);
     try {
       const response = await askStudentRag({
         question: question.trim(),

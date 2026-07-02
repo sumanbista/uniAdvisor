@@ -48,6 +48,7 @@ export function RagSearchPanel({ onSearchComplete }: RagSearchPanelProps) {
     }
 
     setIsSearching(true);
+    setResults(null);
     try {
       const response = await searchRag({
         query: query.trim(),

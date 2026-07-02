@@ -66,6 +66,7 @@ export function RagAskPanel({ onAskComplete }: RagAskPanelProps) {
     }
 
     setIsAsking(true);
+    setAnswer(null);
     try {
       const response = await askRag({
         question: question.trim(),
