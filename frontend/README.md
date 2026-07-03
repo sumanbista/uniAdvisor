@@ -19,6 +19,14 @@ Required environment variable:
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
 
+For Vercel, set `NEXT_PUBLIC_API_BASE_URL` to the deployed Render backend URL, for example:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://your-render-backend-url.onrender.com
+```
+
+Do not put Supabase service role keys, Groq API keys, database URLs, or other backend-only secrets in Vercel frontend environment variables.
+
 ## Development
 
 ```bash
@@ -31,6 +39,22 @@ npm run dev
 npm run lint
 npm run build
 ```
+
+## Vercel Deployment
+
+See `frontend/DEPLOYMENT.md` for the deployment checklist.
+
+Recommended Vercel settings:
+
+```text
+Framework Preset: Next.js
+Root Directory: frontend
+Install Command: npm install
+Build Command: npm run build
+Output Directory: leave default / auto-detected
+```
+
+After the Vercel domain is known, add it to the backend Render `BACKEND_CORS_ORIGINS` allowlist.
 
 The Phase 1 UI is being built incrementally as an evidence-first document
 intelligence console. It currently supports document processing, source

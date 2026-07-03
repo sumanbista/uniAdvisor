@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/lib/api";
+import { getApiBaseUrl } from "@/lib/api";
 import type { RagAnswerSource, RagAskResponse, StudentRagAnswerSource, StudentRagAskResponse } from "@/lib/types";
 
 export async function POST(request: Request) {
@@ -6,7 +6,7 @@ export async function POST(request: Request) {
 
   let backendResponse: Response;
   try {
-    backendResponse = await fetch(`${API_BASE_URL}/rag/ask`, {
+    backendResponse = await fetch(`${getApiBaseUrl()}/rag/ask`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

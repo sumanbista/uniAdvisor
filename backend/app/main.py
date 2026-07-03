@@ -14,5 +14,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/health", tags=["health"])
+def health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 app.include_router(documents_router)
 app.include_router(rag_router)

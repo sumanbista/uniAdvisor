@@ -44,6 +44,10 @@ def parse_csv(value: str | None, default: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(item.strip() for item in value.split(",") if item.strip())
 
 
+def getenv_alias(primary: str, fallback: str, default: str | None = None) -> str | None:
+    return os.getenv(primary, os.getenv(fallback, default))
+
+
 class Settings:
     def __init__(self) -> None:
         self.database_url = normalize_database_url(
@@ -66,12 +70,15 @@ class Settings:
         self.supabase_service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
         self.supabase_storage_bucket = os.getenv("SUPABASE_STORAGE_BUCKET")
         self.allowed_upload_extensions = parse_extensions(os.getenv("COURSECOMPASS_ALLOWED_UPLOAD_EXTENSIONS"))
-        self.chunk_size = int(os.getenv("COURSECOMPASS_CHUNK_SIZE", str(DEFAULT_CHUNK_SIZE)))
-        self.chunk_overlap = int(os.getenv("COURSECOMPASS_CHUNK_OVERLAP", str(DEFAULT_CHUNK_OVERLAP)))
+        self.chunk_size = int(getenv_alias("CHUNK_SIZE", "COURSECOMPASS_CHUNK_SIZE", str(DEFAULT_CHUNK_SIZE)) or DEFAULT_CHUNK_SIZE)
+        self.chunk_overlap = int(
+            getenv_alias("CHUNK_OVERLAP", "COURSECOMPASS_CHUNK_OVERLAP", str(DEFAULT_CHUNK_OVERLAP))
+            or DEFAULT_CHUNK_OVERLAP
+        )
         self.groq_api_key = os.getenv("GROQ_API_KEY")
-        self.groq_model = os.getenv("COURSECOMPASS_GROQ_MODEL", DEFAULT_GROQ_MODEL)
+        self.groq_model = getenv_alias("GROQ_MODEL", "COURSECOMPASS_GROQ_MODEL", DEFAULT_GROQ_MODEL)
         self.cors_origins = parse_csv(
-            os.getenv("COURSECOMPASS_CORS_ORIGINS"),
+            getenv_alias("BACKEND_CORS_ORIGINS", "COURSECOMPASS_CORS_ORIGINS"),
             ("http://localhost:3000", "http://127.0.0.1:3000"),
         )
 

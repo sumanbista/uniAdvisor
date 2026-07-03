@@ -10,10 +10,13 @@ import type {
   StudentRagAskResponse,
 } from "@/lib/types";
 
+const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
+
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
+  configuredApiBaseUrl ?? (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const apiBaseUrl = getApiBaseUrl();
   const headers = init?.body instanceof FormData
     ? init?.headers
     : {
@@ -21,7 +24,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
         ...init?.headers,
       };
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     headers,
   });
@@ -95,6 +98,17 @@ export async function askStudentRag(request: RagAskRequest) {
   }
 
   return payload as StudentRagAskResponse;
+}
+
+export function getApiBaseUrl() {
+  if (!API_BASE_URL) {
+    throw {
+      message: "NEXT_PUBLIC_API_BASE_URL is required for deployed frontend API calls.",
+      status: 500,
+      details: null,
+    } satisfies ApiError;
+  }
+  return API_BASE_URL;
 }
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
