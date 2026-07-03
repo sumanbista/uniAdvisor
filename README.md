@@ -78,6 +78,10 @@ npm run dev
 
 Use `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` for the frontend and configure the backend `.env` with `COURSECOMPASS_DATABASE_URL`, `GROQ_API_KEY`, and `COURSECOMPASS_GROQ_MODEL`. For production storage, set `STORAGE_PROVIDER=supabase`, `SUPABASE_URL`, backend-only `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=uniadvisor-documents` in the backend environment.
 
+Backend Render deployment notes, including build/start commands, `/health`, migrations, CORS, Supabase setup, and smoke tests, live in `backend/DEPLOYMENT.md`.
+
+Frontend Vercel deployment notes, including `NEXT_PUBLIC_API_BASE_URL`, route checks, build settings, and smoke tests, live in `frontend/DEPLOYMENT.md`.
+
 ## Demo Flow
 
 Advisor Console:

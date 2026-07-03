@@ -483,6 +483,16 @@ API docs should be available at:
 http://localhost:8000/docs
 ```
 
+For Render deployment, see `backend/DEPLOYMENT.md`.
+
+Recommended Render settings from the repo root:
+
+```text
+Build command: pip install -r backend/requirements.txt
+Start command: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+Health check path: /health
+```
+
 ---
 
 ## Running Tests
