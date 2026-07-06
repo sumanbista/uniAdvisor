@@ -14,9 +14,21 @@ const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/
 
 export const API_BASE_URL =
   configuredApiBaseUrl ?? (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
+export const API_REQUEST_TIMEOUT_MS = 35_000;
+export const BACKEND_UNAVAILABLE_MESSAGE =
+  "The advising backend is unavailable right now. Please make sure the backend is running and try again.";
+export const REQUEST_TIMEOUT_MESSAGE =
+  "The request timed out. The backend may be starting up or unavailable. Please try again.";
 
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+const BACKEND_UNAVAILABLE_STATUSES = new Set([404, 502, 503, 504]);
+
+type TimeoutRequestInit = RequestInit & {
+  timeoutMs?: number;
+};
+
+export async function apiFetch<T>(path: string, init?: TimeoutRequestInit): Promise<T> {
   const apiBaseUrl = getApiBaseUrl();
+  const { timeoutMs, ...fetchInit } = init ?? {};
   const headers = init?.body instanceof FormData
     ? init?.headers
     : {
@@ -24,21 +36,16 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
         ...init?.headers,
       };
 
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
+  const response = await fetchWithTimeout(`${apiBaseUrl}${path}`, {
+    ...fetchInit,
     headers,
+    timeoutMs,
   });
 
-  const contentType = response.headers.get("content-type") ?? "";
-  const payload = contentType.includes("application/json") ? await response.json() : await response.text();
+  const payload = await parseResponsePayload(response);
 
   if (!response.ok) {
-    const apiError: ApiError = {
-      message: extractErrorMessage(payload, response.statusText),
-      status: response.status,
-      details: payload,
-    };
-    throw apiError;
+    throw createApiError(response.status, payload, response.statusText);
   }
 
   return payload as T;
@@ -78,7 +85,7 @@ export function askRag(request: RagAskRequest) {
 }
 
 export async function askStudentRag(request: RagAskRequest) {
-  const response = await fetch("/api/student/ask", {
+  const response = await fetchWithTimeout("/api/student/ask", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -89,15 +96,34 @@ export async function askStudentRag(request: RagAskRequest) {
   const payload = await parseResponsePayload(response);
 
   if (!response.ok) {
-    const apiError: ApiError = {
-      message: extractErrorMessage(payload, response.statusText),
-      status: response.status,
-      details: payload,
-    };
-    throw apiError;
+    throw createApiError(response.status, payload, response.statusText);
   }
 
   return payload as StudentRagAskResponse;
+}
+
+export async function fetchWithTimeout(input: RequestInfo | URL, init?: TimeoutRequestInit) {
+  const { timeoutMs = API_REQUEST_TIMEOUT_MS, signal, ...fetchInit } = init ?? {};
+  const timeout = createTimeoutSignal(timeoutMs, signal ?? undefined);
+
+  try {
+    return await fetch(input, {
+      ...fetchInit,
+      signal: timeout.signal,
+    });
+  } catch (caught) {
+    throw createFetchError(caught, timeout.didTimeout());
+  } finally {
+    timeout.cleanup();
+  }
+}
+
+export function createApiError(status: number, payload: unknown, fallback: string): ApiError {
+  return {
+    message: getUserFacingErrorMessage(status, payload, fallback),
+    status,
+    details: payload,
+  };
 }
 
 export function getApiBaseUrl() {
@@ -109,6 +135,15 @@ export function getApiBaseUrl() {
     } satisfies ApiError;
   }
   return API_BASE_URL;
+}
+
+function getUserFacingErrorMessage(status: number, payload: unknown, fallback: string): string {
+  if (BACKEND_UNAVAILABLE_STATUSES.has(status)) {
+    return BACKEND_UNAVAILABLE_MESSAGE;
+  }
+
+  const message = extractErrorMessage(payload, fallback);
+  return isSafeUserMessage(message) ? message : "Request failed. Please try again.";
 }
 
 function extractErrorMessage(payload: unknown, fallback: string): string {
@@ -124,7 +159,81 @@ function extractErrorMessage(payload: unknown, fallback: string): string {
   return fallback || "Request failed";
 }
 
-async function parseResponsePayload(response: Response) {
+export async function parseResponsePayload(response: Response) {
   const contentType = response.headers.get("content-type") ?? "";
-  return contentType.includes("application/json") ? response.json() : response.text();
+  const text = await response.text();
+
+  if (!text) {
+    return null;
+  }
+
+  if (contentType.includes("application/json")) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
+
+  return text;
+}
+
+function createTimeoutSignal(timeoutMs: number, externalSignal?: AbortSignal) {
+  const controller = new AbortController();
+  let didTimeout = false;
+
+  const abortFromExternalSignal = () => {
+    controller.abort(externalSignal?.reason);
+  };
+
+  if (externalSignal?.aborted) {
+    abortFromExternalSignal();
+  } else {
+    externalSignal?.addEventListener("abort", abortFromExternalSignal, { once: true });
+  }
+
+  const timeoutId = setTimeout(() => {
+    didTimeout = true;
+    controller.abort();
+  }, timeoutMs);
+
+  return {
+    signal: controller.signal,
+    didTimeout: () => didTimeout,
+    cleanup: () => {
+      clearTimeout(timeoutId);
+      externalSignal?.removeEventListener("abort", abortFromExternalSignal);
+    },
+  };
+}
+
+function createFetchError(caught: unknown, didTimeout: boolean): ApiError {
+  if (didTimeout || isAbortError(caught)) {
+    return {
+      message: REQUEST_TIMEOUT_MESSAGE,
+      status: 504,
+      details: null,
+    };
+  }
+
+  return {
+    message: BACKEND_UNAVAILABLE_MESSAGE,
+    status: 503,
+    details: null,
+  };
+}
+
+function isAbortError(caught: unknown) {
+  return (
+    caught instanceof DOMException &&
+    (caught.name === "AbortError" || caught.name === "TimeoutError")
+  );
+}
+
+function isSafeUserMessage(message: string) {
+  return (
+    message.length <= 240 &&
+    !/traceback|stack trace|exception|^\s*error:/i.test(message) &&
+    !/\n\s*at\s+\S+/i.test(message)
+  );
 }
