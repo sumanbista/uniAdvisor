@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from backend.app.core.config import DEFAULT_DEPARTMENT, DEFAULT_PROGRAM, SUPPORTED_RAG_FILTERS
 from backend.app.db.models import Document, DocumentChunk, DocumentStatus
 from backend.app.schemas.rag import RagSearchResult
-from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, EmbeddingError, EmbeddingProvider
+from backend.app.services.embeddings import EmbeddingProvider, validate_embedding_vector
 
 
 @dataclass(frozen=True)
@@ -56,10 +56,7 @@ def search_chunks(
     embedding_provider: EmbeddingProvider,
 ) -> list[RagSearchResult]:
     query_embedding = embedding_provider.embed(query)
-    if len(query_embedding) != EMBEDDING_DIMENSIONS:
-        raise EmbeddingError(
-            f"Embedding provider returned {len(query_embedding)} dimensions; expected {EMBEDDING_DIMENSIONS}"
-        )
+    validate_embedding_vector(query_embedding)
 
     normalized_filters = normalize_filters(filters)
     if hasattr(db, "chunks"):
