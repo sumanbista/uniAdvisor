@@ -1,32 +1,43 @@
-import { getApiBaseUrl } from "@/lib/api";
-import type { RagAnswerSource, RagAskResponse, StudentRagAnswerSource, StudentRagAskResponse } from "@/lib/types";
+import {
+  BACKEND_UNAVAILABLE_MESSAGE,
+  createApiError,
+  fetchWithTimeout,
+  getApiBaseUrl,
+  parseResponsePayload,
+} from "@/lib/api";
+import type {
+  ApiError,
+  RagAnswerSource,
+  RagAskResponse,
+  StudentRagAnswerSource,
+  StudentRagAskResponse,
+} from "@/lib/types";
 
 export async function POST(request: Request) {
   const body = await request.text();
 
   let backendResponse: Response;
   try {
-    backendResponse = await fetch(`${getApiBaseUrl()}/rag/ask`, {
+    backendResponse = await fetchWithTimeout(`${getApiBaseUrl()}/rag/ask`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body,
     });
-  } catch {
+  } catch (caught) {
+    const apiError = caught as Partial<ApiError>;
     return Response.json(
-      { detail: "Student ask request failed. Check that the backend is running and try again." },
-      { status: 503 },
+      { detail: apiError.message ?? BACKEND_UNAVAILABLE_MESSAGE },
+      { status: apiError.status ?? 503 },
     );
   }
 
-  const contentType = backendResponse.headers.get("content-type") ?? "";
-  const payload = contentType.includes("application/json")
-    ? await backendResponse.json()
-    : await backendResponse.text();
+  const payload = await parseResponsePayload(backendResponse);
 
   if (!backendResponse.ok) {
-    return Response.json(payload, { status: backendResponse.status });
+    const apiError = createApiError(backendResponse.status, payload, backendResponse.statusText);
+    return Response.json({ detail: apiError.message }, { status: backendResponse.status });
   }
 
   return Response.json(stripTechnicalSourceIds(payload as RagAskResponse));
