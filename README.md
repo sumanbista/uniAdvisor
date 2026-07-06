@@ -76,7 +76,7 @@ npm install
 npm run dev
 ```
 
-Use `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` for the frontend and configure the backend `.env` with `COURSECOMPASS_DATABASE_URL`, `GROQ_API_KEY`, and `COURSECOMPASS_GROQ_MODEL`. For production storage, set `STORAGE_PROVIDER=supabase`, `SUPABASE_URL`, backend-only `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=uniadvisor-documents` in the backend environment.
+Use `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` for the frontend and configure the backend `.env` with `COURSECOMPASS_DATABASE_URL`, `GROQ_API_KEY`, and `COURSECOMPASS_GROQ_MODEL`. For production storage, set `STORAGE_PROVIDER=supabase`, `SUPABASE_URL`, backend-only `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=uniadvisor-documents` in the backend environment. For production embeddings, set backend-only `EMBEDDING_PROVIDER=gemini`, `EMBEDDING_FALLBACK_PROVIDER=huggingface`, `GEMINI_API_KEY`, and `HF_API_KEY`; keep `EMBEDDING_DIMENSION=384`.
 
 Backend Render deployment notes, including build/start commands, `/health`, migrations, CORS, Supabase setup, and smoke tests, live in `backend/DEPLOYMENT.md`.
 

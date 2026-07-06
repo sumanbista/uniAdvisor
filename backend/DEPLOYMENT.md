@@ -69,6 +69,25 @@ GROQ_API_KEY=...
 GROQ_MODEL=llama-3.1-8b-instant
 ```
 
+Embeddings:
+
+```env
+EMBEDDING_PROVIDER=gemini
+EMBEDDING_FALLBACK_PROVIDER=huggingface
+EMBEDDING_DIMENSION=384
+EMBEDDING_TIMEOUT_SECONDS=20
+GEMINI_API_KEY=...
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+GEMINI_EMBEDDING_OUTPUT_DIMENSION=384
+HF_API_KEY=...
+HF_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+HF_EMBEDDING_URL=https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction
+```
+
+Render production should use `EMBEDDING_PROVIDER=gemini` and `EMBEDDING_FALLBACK_PROVIDER=huggingface` to avoid loading local `sentence-transformers` or `torch` model weights. Keep `EMBEDDING_DIMENSION=384` unless the database vector column is migrated in a future milestone.
+
+Gemini falls back to Hugging Face only for rate limiting, timeout, network failure, and HTTP 500/502/503/504 responses. Configuration errors, invalid keys, permission errors, malformed responses, and wrong dimensions fail clearly. `GEMINI_API_KEY` and `HF_API_KEY` are backend-only secrets; do not expose them to frontend code or `NEXT_PUBLIC_*` variables.
+
 Backend runtime tuning:
 
 ```env

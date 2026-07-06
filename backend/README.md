@@ -420,9 +420,36 @@ COURSECOMPASS_ALLOWED_UPLOAD_EXTENSIONS=
 COURSECOMPASS_CHUNK_SIZE=
 COURSECOMPASS_CHUNK_OVERLAP=
 COURSECOMPASS_CORS_ORIGINS=
+EMBEDDING_PROVIDER=local
+EMBEDDING_FALLBACK_PROVIDER=
+EMBEDDING_DIMENSION=384
+EMBEDDING_TIMEOUT_SECONDS=20
+GEMINI_API_KEY=
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+GEMINI_EMBEDDING_OUTPUT_DIMENSION=384
+HF_API_KEY=
+HF_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+HF_EMBEDDING_URL=https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction
 ```
 
 `STORAGE_PROVIDER` defaults to `local`. Use local storage for development unless you are testing deployment-like persistence. `COURSECOMPASS_STORAGE_PROVIDER` is also accepted as a project-prefixed alias.
+
+`EMBEDDING_PROVIDER` defaults to `local`, which lazy-loads `sentence-transformers/all-MiniLM-L6-v2` only when embeddings are actually generated. For Render production, set `EMBEDDING_PROVIDER=gemini` and `EMBEDDING_FALLBACK_PROVIDER=huggingface` so the backend does not load local `sentence-transformers` or `torch` model weights. Keep `EMBEDDING_DIMENSION=384` to match the existing pgvector schema.
+
+Gemini production settings:
+
+```text
+EMBEDDING_PROVIDER=gemini
+EMBEDDING_FALLBACK_PROVIDER=huggingface
+EMBEDDING_DIMENSION=384
+GEMINI_API_KEY=<backend-only-gemini-key>
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+GEMINI_EMBEDDING_OUTPUT_DIMENSION=384
+HF_API_KEY=<backend-only-hugging-face-key>
+HF_EMBEDDING_URL=https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction
+```
+
+Gemini falls back to Hugging Face only for recoverable provider failures such as rate limiting, timeout, network failure, or HTTP 500/502/503/504 responses. Bad requests, invalid keys, permission errors, malformed responses, and wrong vector dimensions fail clearly without silent fallback. `GEMINI_API_KEY` and `HF_API_KEY` are backend-only secrets and must never be exposed to frontend code or any `NEXT_PUBLIC_*` variable.
 
 For Supabase Storage, set:
 
@@ -516,7 +543,7 @@ pytest passes
 compileall backend passes
 ```
 
-Some tests may skip if the real local embedding model is unavailable. Unit and workflow tests use overrides so they do not require a live Groq key or external network access.
+Some tests may skip if the real local embedding model is unavailable. Unit and workflow tests use overrides so they do not require a live Groq key, Gemini key, Hugging Face key, or external network access.
 
 ---
 

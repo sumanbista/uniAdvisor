@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.config import DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE
 from backend.app.db.models import Document, DocumentChunk
-from backend.app.services.embeddings import EmbeddingProvider
+from backend.app.services.embeddings import EmbeddingProvider, validate_embedding_vectors
 
 PAGE_MARKER_RE = re.compile(r"^---\s*Page\s+(\d+)\s*---\s*$", re.IGNORECASE | re.MULTILINE)
 
@@ -159,6 +159,7 @@ def build_document_chunks(
     embeddings = embedding_provider.embed_batch([chunk.text for chunk in chunks])
     if len(embeddings) != len(chunks):
         raise ChunkingError("Embedding provider returned the wrong number of embeddings")
+    validate_embedding_vectors(embeddings)
 
     return [
         DocumentChunk(

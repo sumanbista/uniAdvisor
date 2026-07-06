@@ -12,12 +12,21 @@ DEFAULT_CHUNK_OVERLAP = 200
 DEFAULT_DEPARTMENT = "Computer Science"
 DEFAULT_EMBEDDING_DIMENSIONS = 384
 DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+DEFAULT_EMBEDDING_PROVIDER = "local"
+DEFAULT_EMBEDDING_TIMEOUT_SECONDS = 20.0
+DEFAULT_GEMINI_EMBEDDING_MODEL = "gemini-embedding-001"
+DEFAULT_HF_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+DEFAULT_HF_EMBEDDING_URL = (
+    "https://router.huggingface.co/hf-inference/models/"
+    "sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
+)
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
 DEFAULT_PROGRAM = "Computer Science"
 DEFAULT_TOP_K = 5
 MAX_TOP_K = 20
 SUPPORTED_RAG_FILTERS = frozenset({"department", "program", "source_type", "academic_year", "document_id"})
 SUPPORTED_STORAGE_PROVIDERS = frozenset({"local", "supabase"})
+SUPPORTED_EMBEDDING_PROVIDERS = frozenset({"local", "gemini", "huggingface"})
 
 
 def normalize_database_url(database_url: str) -> str:
@@ -75,6 +84,20 @@ class Settings:
             getenv_alias("CHUNK_OVERLAP", "COURSECOMPASS_CHUNK_OVERLAP", str(DEFAULT_CHUNK_OVERLAP))
             or DEFAULT_CHUNK_OVERLAP
         )
+        self.embedding_provider = os.getenv("EMBEDDING_PROVIDER", DEFAULT_EMBEDDING_PROVIDER).strip().lower()
+        self.embedding_fallback_provider = os.getenv("EMBEDDING_FALLBACK_PROVIDER", "").strip().lower()
+        self.embedding_dimension = int(os.getenv("EMBEDDING_DIMENSION", str(DEFAULT_EMBEDDING_DIMENSIONS)))
+        self.embedding_timeout_seconds = float(
+            os.getenv("EMBEDDING_TIMEOUT_SECONDS", str(DEFAULT_EMBEDDING_TIMEOUT_SECONDS))
+        )
+        self.gemini_api_key = os.getenv("GEMINI_API_KEY")
+        self.gemini_embedding_model = os.getenv("GEMINI_EMBEDDING_MODEL", DEFAULT_GEMINI_EMBEDDING_MODEL)
+        self.gemini_embedding_output_dimension = int(
+            os.getenv("GEMINI_EMBEDDING_OUTPUT_DIMENSION", str(DEFAULT_EMBEDDING_DIMENSIONS))
+        )
+        self.hf_api_key = os.getenv("HF_API_KEY")
+        self.hf_embedding_model = os.getenv("HF_EMBEDDING_MODEL", DEFAULT_HF_EMBEDDING_MODEL)
+        self.hf_embedding_url = os.getenv("HF_EMBEDDING_URL", DEFAULT_HF_EMBEDDING_URL)
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.groq_model = getenv_alias("GROQ_MODEL", "COURSECOMPASS_GROQ_MODEL", DEFAULT_GROQ_MODEL)
         self.cors_origins = parse_csv(
