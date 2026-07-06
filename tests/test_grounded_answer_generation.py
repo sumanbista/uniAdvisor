@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import SQLAlchemyError
 
 from backend.app.db.models import Document, DocumentChunk, DocumentStatus, RagQuery
 from backend.app.db.session import get_db
@@ -49,6 +50,11 @@ class FakeSession:
 
     def commit(self) -> None:
         self.commit_count += 1
+
+
+class FailingCommitSession(FakeSession):
+    def commit(self) -> None:
+        raise SQLAlchemyError("commit failed")
 
 
 @pytest.fixture()
@@ -271,3 +277,40 @@ def test_rag_ask_validates_top_k(client: TestClient) -> None:
 
     assert response.status_code == 422
     assert "top_k" in str(response.json()["detail"])
+
+
+def test_rag_ask_returns_sanitized_503_when_query_logging_fails(
+    fake_session: FakeSession,
+    fake_llm: FakeLLMProvider,
+) -> None:
+    failing_session = FailingCommitSession()
+    failing_session.documents = fake_session.documents
+    failing_session.chunks = fake_session.chunks
+
+    def override_db() -> FailingCommitSession:
+        return failing_session
+
+    def override_embedding_provider() -> DeterministicEmbeddingProvider:
+        return DeterministicEmbeddingProvider()
+
+    def override_llm_provider() -> FakeLLMProvider:
+        return fake_llm
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_embedding_provider] = override_embedding_provider
+    app.dependency_overrides[get_llm_provider] = override_llm_provider
+    try:
+        with TestClient(app) as test_client:
+            response = test_client.post(
+                "/rag/ask",
+                json={
+                    "question": "What math courses are required for the Computer Science major?",
+                    "filters": {"source_type": "major_checksheet"},
+                    "top_k": 1,
+                },
+            )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Advising data is unavailable. Please try again."

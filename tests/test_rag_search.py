@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import SQLAlchemyError
 
 from backend.app.db.models import Document, DocumentChunk, DocumentStatus
 from backend.app.db.session import get_db
@@ -30,6 +31,11 @@ class FakeSession:
     def __init__(self) -> None:
         self.documents: dict[uuid.UUID, Document] = {}
         self.chunks: list[DocumentChunk] = []
+
+
+class FailingDatabaseSession:
+    def execute(self, statement: object) -> object:
+        raise SQLAlchemyError("pgvector query failed")
 
 
 @pytest.fixture()
@@ -308,3 +314,22 @@ def test_search_validates_top_k(client: TestClient) -> None:
 
     assert response.status_code == 422
     assert "top_k" in str(response.json()["detail"])
+
+
+def test_search_returns_sanitized_503_when_database_query_fails() -> None:
+    def override_db() -> FailingDatabaseSession:
+        return FailingDatabaseSession()
+
+    def override_embedding_provider() -> DeterministicEmbeddingProvider:
+        return DeterministicEmbeddingProvider()
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_embedding_provider] = override_embedding_provider
+    try:
+        with TestClient(app) as test_client:
+            response = test_client.post("/rag/search", json={"query": "math requirements"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Advising data is unavailable. Please try again."

@@ -46,7 +46,20 @@ class ExternalMockEmbeddingProvider:
 
 
 @pytest.fixture(autouse=True)
-def clear_embedding_caches() -> None:
+def clear_embedding_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in (
+        "EMBEDDING_PROVIDER",
+        "EMBEDDING_FALLBACK_PROVIDER",
+        "EMBEDDING_DIMENSION",
+        "EMBEDDING_TIMEOUT_SECONDS",
+        "GEMINI_API_KEY",
+        "GEMINI_EMBEDDING_MODEL",
+        "GEMINI_EMBEDDING_OUTPUT_DIMENSION",
+        "HF_API_KEY",
+        "HF_EMBEDDING_MODEL",
+        "HF_EMBEDDING_URL",
+    ):
+        monkeypatch.delenv(name, raising=False)
     get_settings.cache_clear()
     get_embedding_provider.cache_clear()
     yield

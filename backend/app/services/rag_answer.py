@@ -1,5 +1,6 @@
 import re
 
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from backend.app.db.models import RagConfidence, RagQuery
@@ -31,6 +32,12 @@ HIGH_IMPACT_PATTERNS = (
 )
 
 
+class RagAnswerDatabaseError(RuntimeError):
+    def __init__(self, stage: str) -> None:
+        self.stage = stage
+        super().__init__(f"RAG database operation failed during {stage}")
+
+
 def answer_question(
     db: Session,
     question: str,
@@ -39,13 +46,17 @@ def answer_question(
     embedding_provider: EmbeddingProvider,
     llm_provider: LLMProvider,
 ) -> RagAskResponse:
-    retrieved_chunks = search_chunks(
-        db=db,
-        query=question,
-        filters=filters,
-        top_k=top_k,
-        embedding_provider=embedding_provider,
-    )
+    try:
+        retrieved_chunks = search_chunks(
+            db=db,
+            query=question,
+            filters=filters,
+            top_k=top_k,
+            embedding_provider=embedding_provider,
+        )
+    except SQLAlchemyError as exc:
+        raise RagAnswerDatabaseError("retrieval") from exc
+
     evidence_chunks = [chunk for chunk in retrieved_chunks if chunk.text.strip()]
     refusal_reason = refusal_reason_for(question, evidence_chunks)
 
@@ -59,7 +70,7 @@ def answer_question(
             sources=source_references(evidence_chunks),
             advisor_note=ADVISOR_NOTE,
         )
-        log_query(db, question, response, evidence_chunks, refusal_reason)
+        log_query_or_raise(db, question, response, evidence_chunks, refusal_reason)
         return response
 
     prompt = build_grounding_prompt(question, evidence_chunks)
@@ -74,7 +85,7 @@ def answer_question(
             sources=source_references(evidence_chunks),
             advisor_note=ADVISOR_NOTE,
         )
-        log_query(db, question, response, evidence_chunks, "LLM returned an empty answer")
+        log_query_or_raise(db, question, response, evidence_chunks, "LLM returned an empty answer")
         return response
 
     response = RagAskResponse(
@@ -86,7 +97,7 @@ def answer_question(
         sources=source_references(evidence_chunks),
         advisor_note=ADVISOR_NOTE,
     )
-    log_query(db, question, response, evidence_chunks, None)
+    log_query_or_raise(db, question, response, evidence_chunks, None)
     return response
 
 
@@ -182,6 +193,19 @@ def log_query(
     )
     db.add(query_log)
     db.commit()
+
+
+def log_query_or_raise(
+    db: Session,
+    question: str,
+    response: RagAskResponse,
+    chunks: list[RagSearchResult],
+    refusal_reason: str | None,
+) -> None:
+    try:
+        log_query(db, question, response, chunks, refusal_reason)
+    except SQLAlchemyError as exc:
+        raise RagAnswerDatabaseError("query_logging") from exc
 
 
 def normalize_question(question: str) -> str:
