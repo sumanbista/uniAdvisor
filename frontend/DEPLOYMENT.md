@@ -46,13 +46,13 @@ POST /rag/search
 POST /rag/ask
 ```
 
-Student View calls the same-origin Next route:
+Student View also uses `NEXT_PUBLIC_API_BASE_URL` for:
 
 ```text
-POST /api/student/ask
+POST /rag/ask
 ```
 
-That route proxies to the configured backend `/rag/ask` endpoint and strips technical source IDs before returning the student-facing response. The frontend does not call Supabase or Groq directly.
+The legacy same-origin route `POST /api/student/ask` may remain for backwards compatibility, but runtime Student View UI should not call it. Long Student Ask requests should go directly from the browser to the Render backend `/rag/ask` endpoint to avoid Vercel function timeouts. The frontend does not call Supabase or Groq directly.
 
 ## Routes
 
@@ -97,6 +97,7 @@ After Vercel deployment:
 11. Verify sources appear.
 12. Ask a high-impact graduation question.
 13. Verify safe refusal or advisor guidance.
+14. From `/student`, ask a question and confirm the browser Network tab shows `https://your-render-backend-url.onrender.com/rag/ask`, not `https://your-vercel-domain/api/student/ask`.
 
 Expected:
 

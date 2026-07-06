@@ -6,8 +6,14 @@ import { StudentAnswerCard } from "@/components/student/StudentAnswerCard";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
 import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { askStudentRag } from "@/lib/api";
-import type { ApiError, StudentRagAskResponse } from "@/lib/types";
+import { askRag } from "@/lib/api";
+import type {
+  ApiError,
+  RagAnswerSource,
+  RagAskResponse,
+  StudentRagAnswerSource,
+  StudentRagAskResponse,
+} from "@/lib/types";
 
 const DEFAULT_TOP_K = 5;
 
@@ -52,7 +58,7 @@ export function StudentAskPanel() {
     setIsAsking(true);
     setAnswer(null);
     try {
-      const response = await askStudentRag({
+      const response = await askRag({
         question: question.trim(),
         filters: {
           department: "Computer Science",
@@ -60,7 +66,7 @@ export function StudentAskPanel() {
         },
         top_k: DEFAULT_TOP_K,
       });
-      setAnswer(response);
+      setAnswer(stripTechnicalSourceIds(response));
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
       setError(apiError.message || "Ask request failed. Check that the backend and LLM provider are available.");
@@ -137,4 +143,18 @@ export function StudentAskPanel() {
       </div>
     </div>
   );
+}
+
+function stripTechnicalSourceIds(response: RagAskResponse): StudentRagAskResponse {
+  return {
+    ...response,
+    sources: response.sources.map(stripSourceTechnicalIds),
+  };
+}
+
+function stripSourceTechnicalIds(source: RagAnswerSource): StudentRagAnswerSource {
+  const safeSource: Partial<RagAnswerSource> = { ...source };
+  delete safeSource.chunk_id;
+  delete safeSource.document_id;
+  return safeSource as StudentRagAnswerSource;
 }

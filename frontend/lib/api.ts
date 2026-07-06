@@ -7,7 +7,6 @@ import type {
   RagAskResponse,
   RagSearchRequest,
   RagSearchResponse,
-  StudentRagAskResponse,
 } from "@/lib/types";
 
 const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
@@ -82,24 +81,6 @@ export function askRag(request: RagAskRequest) {
     method: "POST",
     body: JSON.stringify(request),
   });
-}
-
-export async function askStudentRag(request: RagAskRequest) {
-  const response = await fetchWithTimeout("/api/student/ask", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-  });
-
-  const payload = await parseResponsePayload(response);
-
-  if (!response.ok) {
-    throw createApiError(response.status, payload, response.statusText);
-  }
-
-  return payload as StudentRagAskResponse;
 }
 
 export async function fetchWithTimeout(input: RequestInfo | URL, init?: TimeoutRequestInit) {
