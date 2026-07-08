@@ -65,16 +65,17 @@ Routes:
 
 ```text
 /          Advisor/admin evidence console
-/student   Student-facing source-backed Q&A
+/student   Student-facing conversational advising assistant
 ```
 
 The Advisor Console lets advisors use Search and Ask against documents already
 indexed in the backend. The pipeline rail still marks newly performed workflow
 steps complete only after each real API step succeeds in the current session.
 
-The `/student` route uses the same live `/rag/ask` backend path as the advisor
-ask panel. Starter chips only fill the question field; submitting calls
-`askRag()` with the default Computer Science filters and `top_k = 5`.
+The `/student` route is a frontend-only conversation thread that uses the same
+live `/rag/ask` backend path as the advisor ask panel. Prompt starters only fill
+the composer; submitting calls `askRag()` with the default Computer Science
+filters and `top_k = 5`.
 
 ## Demo Flow
 
@@ -92,7 +93,9 @@ Student View:
 1. Open `/student`.
 2. Choose a starter question or type a CS advising question.
 3. Submit the question.
-4. Review the simplified answer, backend-derived confidence score, advisor guidance, and student-friendly sources.
+4. Confirm the student message and assistant loading message appear in the thread.
+5. Review the answer, backend-derived confidence score, advisor guidance, and student-friendly sources.
+6. Ask a follow-up and confirm it appears as a new frontend-only conversation turn.
 
 Example grounded questions:
 
