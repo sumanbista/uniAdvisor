@@ -89,6 +89,8 @@ export type RagAnswerSource = {
   chunk_id: string;
   document_id: string;
   document_title: string;
+  text?: string | null;
+  snippet?: string | null;
   page_number?: number | null;
   section_title?: string | null;
   source_type: SourceType;
@@ -109,4 +111,14 @@ export type StudentRagAnswerSource = Omit<RagAnswerSource, "chunk_id" | "documen
 
 export type StudentRagAskResponse = Omit<RagAskResponse, "sources"> & {
   sources: StudentRagAnswerSource[];
+};
+
+export type StudentChatMessage = {
+  id: string;
+  role: "student" | "assistant" | "system";
+  content: string;
+  createdAt: string;
+  answer?: StudentRagAskResponse;
+  error?: string;
+  isLoading?: boolean;
 };

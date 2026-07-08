@@ -14,7 +14,9 @@ export function AppHeader() {
     <header className="border-b border-[hsl(var(--line))] bg-[hsl(var(--ink-navy))] text-primary-foreground">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
-          <p className="text-sm font-medium text-primary-foreground/75">Computer Science Advising</p>
+          <p className="text-sm font-medium text-primary-foreground/75">
+            {isStudent ? "Virtual CS Advisor" : "Computer Science Advising"}
+          </p>
           <h1 className="font-serif text-2xl font-semibold tracking-normal">uniAdvisor</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -38,9 +40,11 @@ export function AppHeader() {
           >
             Student View
           </Link>
-          <Badge className="border-white/20 bg-white/10 text-primary-foreground" variant="outline">
-            EVIDENCE-FIRST · BETA
-          </Badge>
+          {!isStudent ? (
+            <Badge className="border-white/20 bg-white/10 text-primary-foreground" variant="outline">
+              EVIDENCE-FIRST · BETA
+            </Badge>
+          ) : null}
         </div>
       </div>
     </header>

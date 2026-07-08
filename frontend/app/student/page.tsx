@@ -1,46 +1,24 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { StudentAskPanel } from "@/components/student/StudentAskPanel";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function StudentPage() {
   return (
     <AppShell>
-      <section className="space-y-5 overflow-hidden">
-        <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
-          <CardHeader className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              <Badge className="bg-[hsl(var(--evidence-teal-tint))] text-[hsl(var(--evidence-teal))]">
-                Guidance-first
-              </Badge>
-              <Badge variant="outline">Source-backed</Badge>
-              <Badge variant="outline">Advisor review</Badge>
-            </div>
-            <CardTitle className="font-serif text-2xl text-[hsl(var(--ink-navy))]">
-              Ask about your CS requirements
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm leading-6 text-[hsl(var(--slate))]">
-            <p>
-              uniAdvisor answers only from uploaded Computer Science advising documents,
-              then points you to the sources and the questions that still need an advisor.
-            </p>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              <Badge className="shrink-0 bg-[hsl(var(--evidence-teal-tint))] text-[hsl(var(--evidence-teal))]">
-                ✓ Explains what uploaded documents say
-              </Badge>
-              <Badge className="shrink-0 border-[hsl(var(--line))] bg-[hsl(var(--verify-amber-tint))] text-[hsl(var(--verify-amber))]">
-                ✕ Not a degree audit or registration decision
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
+      <section className="mx-auto max-w-4xl space-y-5">
+        <div className="space-y-3 py-2">
+          <p className="text-sm font-medium text-[hsl(var(--evidence-teal))]">Virtual CS Advisor</p>
+          <h2 className="font-serif text-3xl font-semibold leading-tight text-[hsl(var(--ink-navy))] sm:text-4xl">
+            What are we planning today?
+          </h2>
+          <p className="max-w-2xl text-sm leading-6 text-[hsl(var(--slate))] sm:text-base">
+            Ask about CS requirements, prerequisites, policies, or planning questions.
+            Answers are based on uploaded advising documents and include source evidence when available.
+          </p>
+        </div>
         <StudentAskPanel />
-
-        <p className="text-xs leading-5 text-[hsl(var(--slate))]">
+        <p className="pb-24 text-xs leading-5 text-[hsl(var(--slate))] sm:pb-6">
           uniAdvisor summarizes uploaded advising documents. Confirm official graduation,
-          registration, prerequisite, and degree-audit decisions with a human advisor.
+          registration, and degree audit decisions with your human advisor or registrar.
         </p>
       </section>
     </AppShell>
