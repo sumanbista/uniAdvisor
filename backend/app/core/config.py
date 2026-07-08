@@ -21,6 +21,8 @@ DEFAULT_HF_EMBEDDING_URL = (
     "sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
 )
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
+DEFAULT_GROQ_MAX_TOKENS = 900
+DEFAULT_GROQ_REASONING_EFFORT = "none"
 DEFAULT_PROGRAM = "Computer Science"
 DEFAULT_TOP_K = 5
 MAX_TOP_K = 20
@@ -100,6 +102,15 @@ class Settings:
         self.hf_embedding_url = os.getenv("HF_EMBEDDING_URL", DEFAULT_HF_EMBEDDING_URL)
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.groq_model = getenv_alias("GROQ_MODEL", "COURSECOMPASS_GROQ_MODEL", DEFAULT_GROQ_MODEL)
+        self.groq_max_tokens = int(
+            getenv_alias("GROQ_MAX_TOKENS", "COURSECOMPASS_GROQ_MAX_TOKENS", str(DEFAULT_GROQ_MAX_TOKENS))
+            or DEFAULT_GROQ_MAX_TOKENS
+        )
+        self.groq_reasoning_effort = getenv_alias(
+            "GROQ_REASONING_EFFORT",
+            "COURSECOMPASS_GROQ_REASONING_EFFORT",
+            DEFAULT_GROQ_REASONING_EFFORT,
+        )
         self.cors_origins = parse_csv(
             getenv_alias("BACKEND_CORS_ORIGINS", "COURSECOMPASS_CORS_ORIGINS"),
             ("http://localhost:3000", "http://127.0.0.1:3000"),
