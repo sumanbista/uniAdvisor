@@ -150,6 +150,7 @@ def build_grounding_prompt(question: str, chunks: list[RagSearchResult]) -> str:
     return f"""Answer the student's question using only the provided context.
 Do not use outside knowledge.
 Do not invent course requirements.
+Do not include hidden reasoning, analysis, or <think> tags.
 Cite source numbers when making claims, using bracketed citations like [Source 1].
 Say when evidence is missing.
 Add appropriate caution for academic decisions.
