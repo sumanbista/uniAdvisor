@@ -74,8 +74,8 @@ export function RagSearchPanel({ onSearchComplete }: RagSearchPanelProps) {
     <div className="space-y-4">
       <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
         <CardHeader>
-          <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Search indexed chunks</CardTitle>
-          <CardDescription>Inspect ranked evidence before answer generation.</CardDescription>
+          <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Verify indexed evidence</CardTitle>
+          <CardDescription>Inspect ranked source passages before answer generation.</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSearch}>
@@ -96,7 +96,7 @@ export function RagSearchPanel({ onSearchComplete }: RagSearchPanelProps) {
             <div className="grid gap-4 md:grid-cols-[160px_1fr_1fr]">
               <div className="grid gap-2">
                 <label className="text-sm font-medium" htmlFor="top-k">
-                  Top k
+                  Evidence limit
                 </label>
                 <input
                   className="h-10 rounded-md border border-input bg-background px-3 text-sm"
@@ -146,7 +146,7 @@ export function RagSearchPanel({ onSearchComplete }: RagSearchPanelProps) {
             {error ? <ErrorMessage message={error} /> : null}
 
             <LoadingButton loading={isSearching} loadingLabel="Searching sources..." type="submit">
-              Search evidence
+              Verify Evidence
             </LoadingButton>
           </form>
         </CardContent>
@@ -155,14 +155,14 @@ export function RagSearchPanel({ onSearchComplete }: RagSearchPanelProps) {
       {results?.length === 0 ? (
         <EmptyState
           title="No results"
-          description="No matching chunks found. Try a different question or confirm the document has been extracted and chunked."
+          description="No matching evidence found. Try a different question or confirm the source has been prepared and indexed."
         />
       ) : null}
 
       {results === null ? (
         <EmptyState
-          title="Search indexed evidence"
-          description="Search indexed document chunks after at least one document has been extracted and chunked."
+          title="Verify indexed evidence"
+          description="Search indexed advising sources after at least one source has been prepared and indexed."
         />
       ) : null}
 
@@ -182,7 +182,7 @@ function validateSearch(query: string, topK: number) {
     return "Enter a search query before searching.";
   }
   if (!Number.isInteger(topK) || topK < 1 || topK > MAX_TOP_K) {
-    return `Top k must be a whole number between 1 and ${MAX_TOP_K}.`;
+    return `Evidence limit must be a whole number between 1 and ${MAX_TOP_K}.`;
   }
   return null;
 }

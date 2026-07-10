@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -15,68 +14,69 @@ type WorkflowStripProps = {
 };
 
 const steps = [
-  { key: "uploaded", label: "Upload", detail: "Add document" },
-  { key: "extracted", label: "Extract", detail: "Read text" },
-  { key: "chunked", label: "Chunk", detail: "Index evidence" },
-  { key: "search", label: "Search", detail: "Inspect sources" },
-  { key: "ask", label: "Ask", detail: "Answer with citations" },
+  { key: "uploaded", label: "Upload source", detail: "Add an advising document" },
+  { key: "extracted", label: "Prepare text", detail: "Read the source content" },
+  { key: "chunked", label: "Index evidence", detail: "Make passages searchable" },
+  { key: "search", label: "Verify evidence", detail: "Inspect supporting sources" },
+  { key: "ask", label: "Test answer", detail: "Review citations and guidance" },
 ];
-
-const modules = ["Foundation", "Documents UI", "Search UI", "Ask UI", "Student View"];
 
 export function WorkflowStrip({ progress }: WorkflowStripProps) {
   return (
-    <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
-      <CardHeader className="space-y-3">
-        <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Pipeline status</CardTitle>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {modules.map((module) => (
-            <Badge
-              className="shrink-0 bg-[hsl(var(--evidence-teal-tint))] text-[hsl(var(--evidence-teal))]"
-              key={module}
-            >
-              {module}
-            </Badge>
-          ))}
+    <details className="group rounded-lg border border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))] sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
+        <div>
+          <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">How the uniAdvisor workflow works</p>
+          <p className="mt-1 text-sm leading-5 text-[hsl(var(--slate))]">
+            Documents are processed into searchable evidence before they can be used for grounded answers.
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <section aria-label="Document workflow" className="grid gap-3 min-[900px]:grid-cols-5">
-          {steps.map((step, index) => {
-            const done = getStepDone(step.key, progress);
+        <span className="text-sm font-medium text-[hsl(var(--evidence-teal))] group-open:hidden">Show steps</span>
+        <span className="hidden text-sm font-medium text-[hsl(var(--evidence-teal))] group-open:inline">Hide steps</span>
+      </summary>
 
-            return (
-              <div
-                className={cn(
-                  "rounded-md border p-3",
-                  done
-                    ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal-tint))]"
-                    : "border-[hsl(var(--line))] bg-background"
-                )}
-                key={step.label}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
-                      done
-                        ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal))] text-white"
-                        : "border-[hsl(var(--line))] bg-[hsl(var(--paper))] text-[hsl(var(--ink-navy))]"
-                    )}
-                  >
-                    {done ? "✓" : index + 1}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">{step.label}</p>
-                    <p className="text-xs text-[hsl(var(--slate))]">{step.detail}</p>
+      <Card className="rounded-none border-x-0 border-b-0 border-t border-[hsl(var(--line))] bg-transparent shadow-none">
+        <CardHeader className="pb-3">
+          <CardTitle className="font-serif text-lg text-[hsl(var(--ink-navy))]">Manual source workflow</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <section aria-label="Advising source workflow" className="grid gap-3 min-[900px]:grid-cols-5">
+            {steps.map((step, index) => {
+              const done = getStepDone(step.key, progress);
+
+              return (
+                <div
+                  className={cn(
+                    "rounded-md border p-3",
+                    done
+                      ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal-tint))]"
+                      : "border-[hsl(var(--line))] bg-background"
+                  )}
+                  key={step.label}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
+                        done
+                          ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal))] text-white"
+                          : "border-[hsl(var(--line))] bg-[hsl(var(--paper))] text-[hsl(var(--ink-navy))]"
+                      )}
+                    >
+                      {done ? "✓" : index + 1}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">{step.label}</p>
+                      <p className="text-xs text-[hsl(var(--slate))]">{step.detail}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </section>
-      </CardContent>
-    </Card>
+              );
+            })}
+          </section>
+        </CardContent>
+      </Card>
+    </details>
   );
 }
 

@@ -28,7 +28,7 @@ export function AnswerCard({ answer }: AnswerCardProps) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-normal text-[hsl(var(--slate))]">
-                {answer.refused ? "Careful academic boundary" : "Generated from retrieved evidence"}
+                {answer.refused ? "Careful academic boundary" : "Generated from source evidence"}
               </p>
               <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">
                 {answer.refused ? "uniAdvisor cannot determine that from documents alone" : "Grounded answer"}

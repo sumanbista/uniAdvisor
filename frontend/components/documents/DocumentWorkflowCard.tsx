@@ -42,9 +42,9 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
       setExtractComplete(true);
       setChunkComplete(false);
       onWorkflowProgress?.({ extracted: true, chunked: false, searched: false, asked: false });
-      setSuccess("Text extraction completed.");
+      setSuccess("Text preparation completed.");
     } catch (caught) {
-      const message = getErrorMessage(caught, "Extract failed.");
+      const message = getErrorMessage(caught, "Text preparation failed.");
       onDocumentChange({ ...document, status: "failed", error_message: message });
       setError(message);
     } finally {
@@ -63,9 +63,9 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
       onDocumentChange({ ...document, status: response.status, error_message: null });
       setChunkComplete(true);
       onWorkflowProgress?.({ chunked: true, searched: false, asked: false });
-      setSuccess(`Chunking completed. Created ${response.chunks_created} chunk${response.chunks_created === 1 ? "" : "s"}.`);
+      setSuccess(`Evidence indexing completed. Created ${response.chunks_created} source passage${response.chunks_created === 1 ? "" : "s"}.`);
     } catch (caught) {
-      const message = getErrorMessage(caught, "Chunking failed.");
+      const message = getErrorMessage(caught, "Evidence indexing failed.");
       onDocumentChange({ ...document, status: "failed", error_message: message });
       setError(message);
     } finally {
@@ -102,10 +102,10 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
         <Separator />
 
         <div className="grid gap-2 text-sm">
-          <ChecklistItem done label="Upload" />
-          <ChecklistItem done={extractComplete} label="Extract text" />
-          <ChecklistItem done={chunkComplete} label="Chunk document" />
-          <ChecklistItem done={chunkComplete} label="Search or ask with evidence" />
+          <ChecklistItem done label="Upload source" />
+          <ChecklistItem done={extractComplete} label="Prepare text" />
+          <ChecklistItem done={chunkComplete} label="Index evidence" />
+          <ChecklistItem done={chunkComplete} label="Verify evidence or test an answer" />
         </div>
 
         <Separator />
@@ -113,20 +113,20 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
         <div className="flex flex-col gap-3 sm:flex-row">
           <LoadingButton
             loading={activeStep === "extract"}
-            loadingLabel="Extracting text..."
+            loadingLabel="Preparing text..."
             disabled={isProcessing}
             onClick={handleExtract}
           >
-            Extract Text
+            Prepare Text
           </LoadingButton>
           <LoadingButton
             loading={activeStep === "chunk"}
-            loadingLabel="Chunking document..."
+            loadingLabel="Indexing evidence..."
             disabled={isProcessing || !canChunk}
             onClick={handleChunk}
             variant="outline"
           >
-            Chunk Document
+            Index Evidence
           </LoadingButton>
         </div>
       </CardContent>

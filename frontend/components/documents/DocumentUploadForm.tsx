@@ -68,7 +68,7 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
       const uploadedDocument = await uploadDocument(formData);
       setDocument(uploadedDocument);
       onProgressChange?.({ uploaded: true, extracted: false, chunked: false, searched: false, asked: false });
-      setSuccess("Document uploaded. Run extraction to continue.");
+      setSuccess("Advising source uploaded. Prepare text to continue.");
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
       setError(apiError.message || "Upload failed. Check that the backend is running and try again.");
@@ -82,7 +82,7 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
       <div className="space-y-4">
         <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
           <CardHeader>
-            <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Upload document</CardTitle>
+            <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Upload advising source</CardTitle>
             <CardDescription>Supported files: .pdf, .txt, and .md</CardDescription>
           </CardHeader>
           <CardContent>
@@ -139,7 +139,7 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
               {success ? <InfoNote title="Upload complete" tone="success">{success}</InfoNote> : null}
 
               <LoadingButton loading={isUploading} loadingLabel="Uploading..." type="submit">
-                Upload document
+                Upload Source
               </LoadingButton>
             </form>
           </CardContent>
@@ -157,16 +157,16 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
           <Card className="border-dashed border-[hsl(var(--line))] bg-white/70 shadow-sm">
             <CardHeader>
               <SectionHeader
-                eyebrow="Pipeline manager"
-                title="No document uploaded yet"
-                description="Start by uploading an academic document. After upload, run extraction and chunking before using Search or Ask."
+                eyebrow="Advising source"
+                title="No source uploaded yet"
+                description="Start by uploading an advising source. After upload, prepare text and index evidence before verifying evidence or testing an answer."
               />
             </CardHeader>
             <CardContent className="grid gap-3 text-sm text-muted-foreground">
-              <Step label="1. Upload" />
-              <Step label="2. Extract text" />
-              <Step label="3. Chunk document" />
-              <Step label="4. Search or ask with evidence" />
+              <Step label="1. Upload source" />
+              <Step label="2. Prepare text" />
+              <Step label="3. Index evidence" />
+              <Step label="4. Verify evidence or test an answer" />
             </CardContent>
           </Card>
         )}
