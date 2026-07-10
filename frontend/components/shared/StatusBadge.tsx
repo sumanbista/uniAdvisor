@@ -23,10 +23,18 @@ const statusStyles: Record<DocumentStatus, string> = {
   archived: "border-slate-200 bg-slate-50 text-slate-500",
 };
 
+const statusLabels: Record<DocumentStatus, string> = {
+  uploaded: "Uploaded",
+  processing: "Processing source",
+  ready: "Ready for evidence search",
+  failed: "Processing failed",
+  archived: "Archived",
+};
+
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <Badge className={cn(statusStyles[status], className)} variant={variants[status]}>
-      {status}
+      {statusLabels[status]}
     </Badge>
   );
 }

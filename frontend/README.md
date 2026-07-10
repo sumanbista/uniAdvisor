@@ -58,7 +58,7 @@ After the Vercel domain is known, add it to the backend Render `BACKEND_CORS_ORI
 
 The Phase 1 UI is being built incrementally as an advisor-facing knowledge-base
 workspace. It currently supports advising source upload, manual text
-preparation, evidence indexing, indexed evidence verification, grounded answer
+processing, indexed evidence verification, grounded answer
 review, source references, and shared frontend API types.
 
 Routes:
@@ -69,9 +69,10 @@ Routes:
 ```
 
 The Advisor Console lets advisors use Indexed Evidence and Advisor Sandbox
-against sources already indexed in the backend. The workflow disclosure is
-collapsed by default and marks newly performed workflow steps complete only
-after each real API step succeeds in the current session.
+against sources already indexed in the backend. After upload, the primary
+document action is Process Source, which calls
+`POST /documents/{document_id}/process`. Separate Prepare Text and Index
+Evidence actions remain available as advanced/debug controls.
 
 The `/student` route is a frontend-only conversation thread that uses the same
 live `/rag/ask` backend path as the advisor ask panel. Prompt starters only fill
@@ -84,7 +85,7 @@ Advisor Console:
 
 1. Open `/`.
 2. Upload a Computer Science advising document.
-3. Prepare text and index evidence.
+3. Process the source.
 4. Verify indexed evidence for a known requirement.
 5. Test a grounded answer and review the confidence ribbon, advisor note, and source references.
 6. Ask a high-impact question and confirm it appears as safe academic guidance rather than a system error.

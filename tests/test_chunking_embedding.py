@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.api.documents import get_embedding_provider_factory
 from backend.app.core.config import Settings, get_settings
 from backend.app.db.models import Document, DocumentChunk, DocumentStatus
 from backend.app.db.session import get_db
@@ -14,7 +15,7 @@ from backend.app.services.chunking import (
     read_extracted_text,
     replace_document_chunks,
 )
-from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, EmbeddingError, get_embedding_provider
+from backend.app.services.embeddings import EMBEDDING_DIMENSIONS, EmbeddingError
 
 
 class DeterministicEmbeddingProvider:
@@ -96,7 +97,7 @@ def client(tmp_path: Path, fake_session: FakeSession) -> TestClient:
 
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_settings] = override_settings
-    app.dependency_overrides[get_embedding_provider] = override_embedding_provider
+    app.dependency_overrides[get_embedding_provider_factory] = lambda: override_embedding_provider
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
@@ -288,7 +289,7 @@ def test_chunk_endpoint_marks_document_failed_when_embedding_fails(
     def override_embedding_provider() -> FailingEmbeddingProvider:
         return FailingEmbeddingProvider()
 
-    app.dependency_overrides[get_embedding_provider] = override_embedding_provider
+    app.dependency_overrides[get_embedding_provider_factory] = lambda: override_embedding_provider
     response = client.post(f"/documents/{document_id}/chunk")
 
     assert response.status_code == 400

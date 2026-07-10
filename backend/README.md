@@ -9,6 +9,7 @@ Phase 1 focuses on the RAG foundation for uploaded Computer Science advising doc
 It supports:
 
 * Document upload
+* Unified document processing
 * Text extraction
 * Chunking
 * Embedding generation
@@ -91,6 +92,7 @@ The Phase 1 backend follows this flow:
 
 ```text
 upload document
+→ process document
 → extract text
 → chunk text
 → generate embeddings
@@ -119,6 +121,14 @@ sequenceDiagram
     API->>Storage: Save uploaded file
     API->>DB: Create documents row
 
+    User->>API: POST /documents/{id}/process
+    API->>Extractor: Extract text from file
+    Extractor->>Storage: Save extracted text
+    API->>Chunker: Split extracted text
+    Chunker->>Embedder: Generate embeddings
+    API->>DB: Replace old chunks
+    API->>DB: Update status to ready
+
     User->>API: POST /documents/{id}/extract
     API->>Extractor: Extract text from file
     Extractor->>Storage: Save extracted text
@@ -130,6 +140,11 @@ sequenceDiagram
     API->>DB: Replace old chunks
     API->>DB: Store new document_chunks
 ```
+
+The Advisor Console prefers `POST /documents/{id}/process` for day-to-day
+source processing. `POST /documents/{id}/extract` and
+`POST /documents/{id}/chunk` remain available for debugging, manual demos, and
+backwards compatibility.
 
 ---
 

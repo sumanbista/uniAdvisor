@@ -45,11 +45,17 @@ Backend:
 
 ```text
 POST /documents/upload
+POST /documents/{document_id}/process
 POST /documents/{document_id}/extract
 POST /documents/{document_id}/chunk
 POST /rag/search
 POST /rag/ask
 ```
+
+`POST /documents/{document_id}/process` is the preferred Advisor Console path.
+It runs extraction and evidence indexing in one synchronous request. The
+separate extract and chunk endpoints remain available for debugging and manual
+testing.
 
 Frontend:
 
@@ -89,11 +95,10 @@ Advisor Console:
 1. Open `/`.
 2. Show the evidence-first pipeline: Documents, Search, Ask.
 3. Upload a Computer Science advising document.
-4. Run text extraction.
-5. Run chunking.
-6. Search for a known requirement and inspect retrieved evidence.
-7. Ask a grounded advising question.
-8. Show the answer, backend-derived confidence score, advisor note, and source references.
+4. Process the source.
+5. Search for a known requirement and inspect retrieved evidence.
+6. Ask a grounded advising question.
+7. Show the answer, backend-derived confidence score, advisor note, and source references.
 
 Student View:
 
@@ -157,7 +162,7 @@ npm run build
 Current expected results:
 
 ```text
-backend tests: 47 passed, 1 skipped
+backend tests: 89 passed, 1 skipped
 backend compile: passed
 frontend lint: passed
 frontend build: passed

@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.api.documents import get_embedding_provider_factory
 from backend.app.core.config import DEFAULT_GROQ_MODEL, Settings, get_settings
 from backend.app.db.models import Document, DocumentChunk, RagQuery
 from backend.app.db.session import get_db
@@ -114,6 +115,7 @@ def client(tmp_path: Path, fake_session: FakeSession, fake_llm: FakeLLMProvider)
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_settings] = override_settings
     app.dependency_overrides[get_embedding_provider] = override_embedding_provider
+    app.dependency_overrides[get_embedding_provider_factory] = lambda: override_embedding_provider
     app.dependency_overrides[get_llm_provider] = override_llm_provider
     with TestClient(app) as test_client:
         yield test_client

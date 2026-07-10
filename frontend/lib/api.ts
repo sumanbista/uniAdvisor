@@ -2,6 +2,7 @@ import type {
   ApiError,
   DocumentChunkResponse,
   DocumentExtractionResponse,
+  DocumentProcessResponse,
   DocumentUploadResponse,
   RagAskRequest,
   RagAskResponse,
@@ -65,6 +66,12 @@ export function extractDocument(documentId: string) {
 
 export function chunkDocument(documentId: string) {
   return apiFetch<DocumentChunkResponse>(`/documents/${documentId}/chunk`, {
+    method: "POST",
+  });
+}
+
+export function processDocument(documentId: string) {
+  return apiFetch<DocumentProcessResponse>(`/documents/${documentId}/process`, {
     method: "POST",
   });
 }

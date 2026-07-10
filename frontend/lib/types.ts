@@ -44,6 +44,14 @@ export type DocumentChunkResponse = {
   status: DocumentStatus;
 };
 
+export type DocumentProcessResponse = {
+  document_id: string;
+  status: DocumentStatus;
+  message: string;
+  extracted_text_path?: string | null;
+  chunk_count: number;
+};
+
 export type RagFilters = {
   department: string;
   program: string;

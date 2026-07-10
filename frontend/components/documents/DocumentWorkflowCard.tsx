@@ -9,8 +9,8 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { SourceTypeBadge } from "@/components/shared/SourceTypeBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { chunkDocument, extractDocument } from "@/lib/api";
-import type { ApiError, DocumentRecord } from "@/lib/types";
+import { chunkDocument, extractDocument, processDocument } from "@/lib/api";
+import type { ApiError, DocumentRecord, DocumentStatus } from "@/lib/types";
 import type { WorkflowProgress } from "@/components/layout/WorkflowStrip";
 
 type DocumentWorkflowCardProps = {
@@ -19,7 +19,7 @@ type DocumentWorkflowCardProps = {
   onWorkflowProgress?: (progress: Partial<WorkflowProgress>) => void;
 };
 
-type WorkflowStep = "extract" | "chunk" | null;
+type WorkflowStep = "process" | "extract" | "chunk" | null;
 
 export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowProgress }: DocumentWorkflowCardProps) {
   const [activeStep, setActiveStep] = useState<WorkflowStep>(null);
@@ -28,7 +28,31 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
   const [extractComplete, setExtractComplete] = useState(false);
   const [chunkComplete, setChunkComplete] = useState(false);
   const isProcessing = activeStep !== null || document.status === "processing";
+  const isReady = document.status === "ready" || chunkComplete;
+  const canProcess = !isProcessing && document.status !== "archived";
   const canChunk = document.status === "ready";
+
+  async function handleProcess() {
+    setActiveStep("process");
+    setError(null);
+    setSuccess(null);
+    onDocumentChange({ ...document, status: "processing", error_message: null });
+
+    try {
+      const response = await processDocument(document.id);
+      onDocumentChange({ ...document, status: response.status, error_message: null });
+      setExtractComplete(true);
+      setChunkComplete(response.status === "ready");
+      onWorkflowProgress?.({ extracted: true, chunked: response.status === "ready", searched: false, asked: false });
+      setSuccess(`Ready for evidence search. Created ${response.chunk_count} source passage${response.chunk_count === 1 ? "" : "s"}.`);
+    } catch (caught) {
+      const message = getErrorMessage(caught, "Source processing failed.");
+      onDocumentChange({ ...document, status: "failed", error_message: message });
+      setError(message);
+    } finally {
+      setActiveStep(null);
+    }
+  }
 
   async function handleExtract() {
     setActiveStep("extract");
@@ -63,7 +87,7 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
       onDocumentChange({ ...document, status: response.status, error_message: null });
       setChunkComplete(true);
       onWorkflowProgress?.({ chunked: true, searched: false, asked: false });
-      setSuccess(`Evidence indexing completed. Created ${response.chunks_created} source passage${response.chunks_created === 1 ? "" : "s"}.`);
+      setSuccess(`Ready for evidence search. Created ${response.chunks_created} source passage${response.chunks_created === 1 ? "" : "s"}.`);
     } catch (caught) {
       const message = getErrorMessage(caught, "Evidence indexing failed.");
       onDocumentChange({ ...document, status: "failed", error_message: message });
@@ -92,7 +116,7 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
           <DocumentField label="Department" value={document.department} />
           <DocumentField label="Program" value={document.program} />
           <DocumentField label="Academic year" value={document.academic_year || "Not specified"} />
-          <DocumentField label="Status" value={document.status} />
+          <DocumentField label="Status" value={getStatusLabel(document.status)} />
         </dl>
 
         {document.error_message ? <ErrorMessage message={document.error_message} title="Document error" /> : null}
@@ -103,31 +127,49 @@ export function DocumentWorkflowCard({ document, onDocumentChange, onWorkflowPro
 
         <div className="grid gap-2 text-sm">
           <ChecklistItem done label="Upload source" />
-          <ChecklistItem done={extractComplete} label="Prepare text" />
-          <ChecklistItem done={chunkComplete} label="Index evidence" />
-          <ChecklistItem done={chunkComplete} label="Verify evidence or test an answer" />
+          <ChecklistItem done={extractComplete || isReady} label="Process source" />
+          <ChecklistItem done={isReady} label="Ready for evidence search" />
+          <ChecklistItem done={isReady} label="Verify evidence or test an answer" />
         </div>
 
         <Separator />
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="space-y-3">
           <LoadingButton
-            loading={activeStep === "extract"}
-            loadingLabel="Preparing text..."
-            disabled={isProcessing}
-            onClick={handleExtract}
+            className="w-full sm:w-auto"
+            loading={activeStep === "process"}
+            loadingLabel="Processing Source..."
+            disabled={!canProcess}
+            onClick={handleProcess}
           >
-            Prepare Text
+            {isReady ? "Process Source Again" : "Process Source"}
           </LoadingButton>
-          <LoadingButton
-            loading={activeStep === "chunk"}
-            loadingLabel="Indexing evidence..."
-            disabled={isProcessing || !canChunk}
-            onClick={handleChunk}
-            variant="outline"
-          >
-            Index Evidence
-          </LoadingButton>
+
+          <details className="rounded-md border border-[hsl(var(--line))] bg-background">
+            <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-[hsl(var(--ink-navy))]">
+              Advanced processing actions
+            </summary>
+            <div className="flex flex-col gap-3 border-t border-[hsl(var(--line))] p-3 sm:flex-row">
+              <LoadingButton
+                loading={activeStep === "extract"}
+                loadingLabel="Preparing text..."
+                disabled={isProcessing}
+                onClick={handleExtract}
+                variant="outline"
+              >
+                Prepare Text
+              </LoadingButton>
+              <LoadingButton
+                loading={activeStep === "chunk"}
+                loadingLabel="Indexing evidence..."
+                disabled={isProcessing || !canChunk}
+                onClick={handleChunk}
+                variant="outline"
+              >
+                Index Evidence
+              </LoadingButton>
+            </div>
+          </details>
         </div>
       </CardContent>
     </Card>
@@ -169,4 +211,15 @@ function ChecklistItem({ done, label }: { done: boolean; label: string }) {
 function getErrorMessage(caught: unknown, fallback: string) {
   const error = caught as Partial<ApiError>;
   return typeof error?.message === "string" && error.message ? error.message : fallback;
+}
+
+function getStatusLabel(status: DocumentStatus) {
+  const labels: Record<DocumentStatus, string> = {
+    uploaded: "Uploaded",
+    processing: "Processing source",
+    ready: "Ready for evidence search",
+    failed: "Processing failed",
+    archived: "Archived",
+  };
+  return labels[status];
 }

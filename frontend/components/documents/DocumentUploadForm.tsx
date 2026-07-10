@@ -68,7 +68,7 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
       const uploadedDocument = await uploadDocument(formData);
       setDocument(uploadedDocument);
       onProgressChange?.({ uploaded: true, extracted: false, chunked: false, searched: false, asked: false });
-      setSuccess("Advising source uploaded. Prepare text to continue.");
+      setSuccess("Advising source uploaded. Process the source to make it ready for evidence search.");
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
       setError(apiError.message || "Upload failed. Check that the backend is running and try again.");
@@ -159,13 +159,13 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
               <SectionHeader
                 eyebrow="Advising source"
                 title="No source uploaded yet"
-                description="Start by uploading an advising source. After upload, prepare text and index evidence before verifying evidence or testing an answer."
+                description="Start by uploading an advising source. After upload, process it before verifying evidence or testing an answer."
               />
             </CardHeader>
             <CardContent className="grid gap-3 text-sm text-muted-foreground">
               <Step label="1. Upload source" />
-              <Step label="2. Prepare text" />
-              <Step label="3. Index evidence" />
+              <Step label="2. Process source" />
+              <Step label="3. Ready for evidence search" />
               <Step label="4. Verify evidence or test an answer" />
             </CardContent>
           </Card>

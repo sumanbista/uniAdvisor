@@ -15,7 +15,7 @@ const panels = [
     value: "documents",
     label: "Advising Sources",
     title: "Add Advising Source",
-    description: "Upload a CS advising document, prepare its text, and index it for source-backed answers.",
+    description: "Upload a CS advising document and process it for source-backed answers.",
   },
   {
     value: "search",
@@ -69,7 +69,7 @@ export function DashboardTabs() {
           </TabsList>
           {!progress.chunked ? (
             <p className="text-sm leading-6 text-[hsl(var(--slate))]">
-              Indexed Evidence and Advisor Sandbox can use sources already indexed in the backend. Upload, prepare, and index a new source here when you need to add more evidence.
+              Indexed Evidence and Advisor Sandbox can use sources already indexed in the backend. Upload and process a new source here when you need to add more evidence.
             </p>
           ) : null}
         </div>
@@ -79,10 +79,10 @@ export function DashboardTabs() {
             <SectionHeader
               eyebrow="Advising sources"
               title="Add Advising Source"
-              description="Upload a CS advising document, prepare its text, and index it for source-backed answers."
+              description="Upload a CS advising document and process it for source-backed answers."
             />
             <InfoNote title="Processing order" tone="evidence">
-              After upload, prepare the text and index the evidence. This workflow stays manual until the backend supports automatic processing.
+              After upload, process the source to prepare text and make evidence searchable.
             </InfoNote>
             <DocumentUploadForm onProgressChange={updateProgress} />
           </div>
