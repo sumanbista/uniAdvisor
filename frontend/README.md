@@ -1,6 +1,6 @@
 # uniAdvisor Frontend
 
-Phase 1 evidence-first frontend for the Computer Science advising RAG demo.
+Phase 1 evidence-first frontend for the Computer Science advising knowledge-base demo.
 
 ## Stack
 
@@ -56,21 +56,22 @@ Output Directory: leave default / auto-detected
 
 After the Vercel domain is known, add it to the backend Render `BACKEND_CORS_ORIGINS` allowlist.
 
-The Phase 1 UI is being built incrementally as an evidence-first document
-intelligence console. It currently supports document processing, source
-retrieval, grounded ask responses, source references, and shared frontend API
-types.
+The Phase 1 UI is being built incrementally as an advisor-facing knowledge-base
+workspace. It currently supports advising source upload, manual text
+preparation, evidence indexing, indexed evidence verification, grounded answer
+review, source references, and shared frontend API types.
 
 Routes:
 
 ```text
-/          Advisor/admin evidence console
+/          Advisor Console knowledge-base workspace
 /student   Student-facing conversational advising assistant
 ```
 
-The Advisor Console lets advisors use Search and Ask against documents already
-indexed in the backend. The pipeline rail still marks newly performed workflow
-steps complete only after each real API step succeeds in the current session.
+The Advisor Console lets advisors use Indexed Evidence and Advisor Sandbox
+against sources already indexed in the backend. The workflow disclosure is
+collapsed by default and marks newly performed workflow steps complete only
+after each real API step succeeds in the current session.
 
 The `/student` route is a frontend-only conversation thread that uses the same
 live `/rag/ask` backend path as the advisor ask panel. Prompt starters only fill
@@ -83,9 +84,9 @@ Advisor Console:
 
 1. Open `/`.
 2. Upload a Computer Science advising document.
-3. Run extraction and chunking.
-4. Search for a known requirement and inspect retrieved evidence.
-5. Ask a grounded question and review the answer, confidence ribbon, advisor note, and source references.
+3. Prepare text and index evidence.
+4. Verify indexed evidence for a known requirement.
+5. Test a grounded answer and review the confidence ribbon, advisor note, and source references.
 6. Ask a high-impact question and confirm it appears as safe academic guidance rather than a system error.
 
 Student View:

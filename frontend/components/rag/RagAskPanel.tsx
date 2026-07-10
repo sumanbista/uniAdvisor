@@ -92,8 +92,8 @@ export function RagAskPanel({ onAskComplete }: RagAskPanelProps) {
     <div className="space-y-4">
       <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
         <CardHeader>
-          <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Ask a grounded question</CardTitle>
-          <CardDescription>Submit one question against indexed Computer Science advising documents.</CardDescription>
+          <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Test a student-style question</CardTitle>
+          <CardDescription>Review the answer, confidence, advisor note, and source evidence.</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleAsk}>
@@ -114,7 +114,7 @@ export function RagAskPanel({ onAskComplete }: RagAskPanelProps) {
             <div className="grid gap-4 md:grid-cols-[160px_1fr_1fr]">
               <div className="grid gap-2">
                 <label className="text-sm font-medium" htmlFor="ask-top-k">
-                  Top k
+                  Evidence limit
                 </label>
                 <input
                   className="h-10 rounded-md border border-input bg-background px-3 text-sm"
@@ -163,8 +163,8 @@ export function RagAskPanel({ onAskComplete }: RagAskPanelProps) {
 
             {error ? <ErrorMessage message={error} /> : null}
 
-            <LoadingButton loading={isAsking} loadingLabel="Generating grounded answer..." type="submit">
-              Generate grounded answer
+            <LoadingButton loading={isAsking} loadingLabel="Testing answer..." type="submit">
+              Test Answer
             </LoadingButton>
           </form>
         </CardContent>
@@ -187,7 +187,7 @@ function QuestionStarters({ onSelect }: QuestionStartersProps) {
   return (
     <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
       <CardHeader>
-        <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Ask about advising documents</CardTitle>
+        <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Try a sandbox question</CardTitle>
         <CardDescription>
           Start with one of these common Computer Science advising questions.
         </CardDescription>
@@ -216,7 +216,7 @@ function validateAsk(question: string, topK: number) {
     return "Enter a question before asking.";
   }
   if (!Number.isInteger(topK) || topK < 1 || topK > MAX_TOP_K) {
-    return `Top k must be a whole number between 1 and ${MAX_TOP_K}.`;
+    return `Evidence limit must be a whole number between 1 and ${MAX_TOP_K}.`;
   }
   return null;
 }
