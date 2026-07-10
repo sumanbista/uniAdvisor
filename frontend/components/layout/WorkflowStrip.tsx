@@ -15,8 +15,8 @@ type WorkflowStripProps = {
 
 const steps = [
   { key: "uploaded", label: "Upload source", detail: "Add an advising document" },
-  { key: "extracted", label: "Prepare text", detail: "Read the source content" },
-  { key: "chunked", label: "Index evidence", detail: "Make passages searchable" },
+  { key: "chunked", label: "Process source", detail: "Prepare text and index evidence" },
+  { key: "ready", label: "Ready for evidence search", detail: "Make passages searchable" },
   { key: "search", label: "Verify evidence", detail: "Inspect supporting sources" },
   { key: "ask", label: "Test answer", detail: "Review citations and guidance" },
 ];
@@ -37,7 +37,7 @@ export function WorkflowStrip({ progress }: WorkflowStripProps) {
 
       <Card className="rounded-none border-x-0 border-b-0 border-t border-[hsl(var(--line))] bg-transparent shadow-none">
         <CardHeader className="pb-3">
-          <CardTitle className="font-serif text-lg text-[hsl(var(--ink-navy))]">Manual source workflow</CardTitle>
+          <CardTitle className="font-serif text-lg text-[hsl(var(--ink-navy))]">Source processing workflow</CardTitle>
         </CardHeader>
         <CardContent>
           <section aria-label="Advising source workflow" className="grid gap-3 min-[900px]:grid-cols-5">
@@ -88,6 +88,9 @@ function getStepDone(stepKey: string, progress: WorkflowProgress) {
     return progress.extracted;
   }
   if (stepKey === "chunked") {
+    return progress.chunked;
+  }
+  if (stepKey === "ready") {
     return progress.chunked;
   }
   if (stepKey === "search" || stepKey === "ask") {

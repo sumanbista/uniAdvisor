@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_ALLOWED_UPLOAD_EXTENSIONS = frozenset({".pdf", ".txt", ".md"})
-DEFAULT_CHUNK_SIZE = 1000
-DEFAULT_CHUNK_OVERLAP = 200
+DEFAULT_CHUNK_SIZE = 300
+DEFAULT_CHUNK_OVERLAP = 75
 DEFAULT_DEPARTMENT = "Computer Science"
 DEFAULT_EMBEDDING_DIMENSIONS = 384
 DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"

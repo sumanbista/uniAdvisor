@@ -33,3 +33,11 @@ class ChunkingResponse(BaseModel):
     document_id: uuid.UUID
     chunks_created: int
     status: str
+
+
+class ProcessDocumentResponse(BaseModel):
+    document_id: uuid.UUID
+    status: str
+    message: str
+    extracted_text_path: str | None = None
+    chunk_count: int
