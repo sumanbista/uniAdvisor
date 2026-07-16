@@ -157,9 +157,6 @@ export function StudentAskPanel() {
           >
             How can I help with your CS planning?
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[hsl(var(--slate))] sm:text-base">
-            Ask about requirements, prerequisites, electives, or policies. Answers use the advising sources available to uniAdvisor and show supporting evidence when it is found.
-          </p>
         </header>
       )}
 

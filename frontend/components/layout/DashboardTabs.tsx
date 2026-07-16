@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { WorkflowStrip, type WorkflowProgress } from "@/components/layout/WorkflowStrip";
+import { WorkspaceGuide } from "@/components/layout/WorkspaceGuide";
 import { RagAskPanel } from "@/components/rag/RagAskPanel";
 import { RagSearchPanel } from "@/components/rag/RagSearchPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,10 +59,20 @@ export function DashboardTabs() {
           <DocumentUploadForm onProgressChange={updateProgress} />
         </TabsContent>
         <TabsContent className="mt-5" value="search">
-          <RagSearchPanel onSearchComplete={() => updateProgress({ searched: true })} />
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="min-w-0">
+              <RagSearchPanel onSearchComplete={() => updateProgress({ searched: true })} />
+            </div>
+            <WorkspaceGuide titleId="indexed-evidence-workspace-guide-title" />
+          </div>
         </TabsContent>
         <TabsContent className="mt-5" value="ask">
-          <RagAskPanel onAskComplete={() => updateProgress({ asked: true })} />
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="min-w-0">
+              <RagAskPanel onAskComplete={() => updateProgress({ asked: true })} />
+            </div>
+            <WorkspaceGuide titleId="advisor-sandbox-workspace-guide-title" />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
