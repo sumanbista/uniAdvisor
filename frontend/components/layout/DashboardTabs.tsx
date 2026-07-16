@@ -12,20 +12,14 @@ const panels = [
   {
     value: "documents",
     label: "Advising Sources",
-    title: "Add advising sources",
-    description: "Upload and prepare the official materials that should support advising answers.",
   },
   {
     value: "search",
     label: "Indexed Evidence",
-    title: "Verify indexed evidence",
-    description: "Search the knowledge base and review the exact passages available to uniAdvisor.",
   },
   {
     value: "ask",
     label: "Advisor Sandbox",
-    title: "Test student-style questions",
-    description: "Review answers, confidence, guidance, and source evidence before students rely on them.",
   },
 ] as const;
 
@@ -39,8 +33,6 @@ export function DashboardTabs() {
     asked: false,
   });
 
-  const activePanel = panels.find((panel) => panel.value === activeTab) ?? panels[0];
-
   function updateProgress(nextProgress: Partial<WorkflowProgress>) {
     setProgress((current) => ({ ...current, ...nextProgress }));
   }
@@ -49,23 +41,18 @@ export function DashboardTabs() {
     <div className="grid gap-7 lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-8">
       <WorkflowStrip progress={progress} />
       <Tabs className="min-w-0" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList className="grid h-auto w-full grid-cols-1 gap-1 rounded-lg border border-[hsl(var(--line))] bg-white p-1 sm:grid-cols-3">
+        <TabsList className="grid h-auto w-full grid-cols-3 gap-1 rounded-lg border border-[hsl(var(--line))] bg-white p-1">
           {panels.map((panel, index) => (
             <TabsTrigger
-              className="min-h-11 gap-2 rounded-md px-3 text-sm data-[state=active]:bg-[hsl(var(--secondary))] data-[state=active]:text-[hsl(var(--focus-blue))] data-[state=active]:shadow-none"
+              className="min-h-11 min-w-0 gap-1 rounded-md px-1 text-xs data-[state=active]:bg-[hsl(var(--secondary))] data-[state=active]:text-[hsl(var(--focus-blue))] data-[state=active]:shadow-none sm:gap-2 sm:px-3 sm:text-sm"
               key={panel.value}
               value={panel.value}
             >
-              <span aria-hidden="true" className="font-mono text-xs">{index + 1}</span>
+              <span aria-hidden="true" className="hidden font-mono text-xs sm:inline">{index + 1}</span>
               {panel.label}
             </TabsTrigger>
           ))}
         </TabsList>
-
-        <div className="mt-6 flex flex-col gap-1">
-          <h2 className="font-serif text-2xl font-semibold text-[hsl(var(--ink-navy))]">{activePanel.title}</h2>
-          <p className="max-w-3xl text-sm leading-6 text-[hsl(var(--slate))]">{activePanel.description}</p>
-        </div>
 
         <TabsContent className="mt-5" value="documents">
           <DocumentUploadForm onProgressChange={updateProgress} />

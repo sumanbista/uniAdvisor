@@ -21,47 +21,19 @@ const steps = [
 
 export function WorkflowStrip({ progress }: WorkflowStripProps) {
   return (
-    <aside aria-labelledby="workflow-title" className="lg:sticky lg:top-24 lg:self-start">
-      <div className="border-b border-[hsl(var(--line))] pb-3 lg:border-b-0 lg:pb-0">
-        <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-[hsl(var(--slate))]" id="workflow-title">
+    <aside aria-label="Advising workflow" className="lg:sticky lg:top-24 lg:self-start">
+      <details className="rounded-lg border border-[hsl(var(--line))] bg-white p-3 text-sm lg:hidden">
+        <summary className="cursor-pointer font-semibold text-[hsl(var(--ink-navy))]">
+          Advising workflow
+        </summary>
+        <WorkflowSteps progress={progress} />
+      </details>
+
+      <div className="hidden lg:block">
+        <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-[hsl(var(--slate))]">
           Advising workflow
         </h2>
-        <ol className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-0">
-          {steps.map((step, index) => {
-            const done = progress[step.key];
-            const active = isCurrentStep(index, progress);
-            return (
-              <li
-                className={cn(
-                  "relative flex gap-2 rounded-lg px-2 py-3 sm:gap-3 sm:px-3 lg:rounded-none lg:px-0 lg:py-4",
-                  active && "bg-[hsl(var(--secondary))] lg:-mx-3 lg:rounded-lg lg:px-3",
-                )}
-                key={step.key}
-              >
-                {index < steps.length - 1 ? (
-                  <span aria-hidden="true" className="absolute left-[1.45rem] top-11 hidden h-[calc(100%-1.75rem)] border-l border-dashed border-[hsl(var(--input))] lg:block" />
-                ) : null}
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "relative flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
-                    done
-                      ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal))] text-white"
-                      : active
-                        ? "border-[hsl(var(--focus-blue))] bg-[hsl(var(--focus-blue))] text-white"
-                        : "border-[hsl(var(--input))] bg-white text-[hsl(var(--slate))]",
-                  )}
-                >
-                  {done ? "✓" : index + 1}
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold leading-5 text-[hsl(var(--ink-navy))]">{step.label}</span>
-                  <span className="mt-1 hidden text-xs leading-5 text-[hsl(var(--slate))] sm:block lg:block">{step.detail}</span>
-                </span>
-              </li>
-            );
-          })}
-        </ol>
+        <WorkflowSteps progress={progress} />
       </div>
 
       <details className="mt-4 rounded-lg border border-[hsl(var(--line))] bg-white p-3 text-sm lg:mt-8 lg:p-4">
@@ -71,6 +43,47 @@ export function WorkflowStrip({ progress }: WorkflowStripProps) {
         </p>
       </details>
     </aside>
+  );
+}
+
+function WorkflowSteps({ progress }: WorkflowStripProps) {
+  return (
+    <ol className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:gap-0">
+      {steps.map((step, index) => {
+        const done = progress[step.key];
+        const active = isCurrentStep(index, progress);
+        return (
+          <li
+            className={cn(
+              "relative flex gap-2 rounded-lg px-2 py-3 sm:gap-3 sm:px-3 lg:rounded-none lg:px-0 lg:py-4",
+              active && "bg-[hsl(var(--secondary))] lg:-mx-3 lg:rounded-lg lg:px-3",
+            )}
+            key={step.key}
+          >
+            {index < steps.length - 1 ? (
+              <span aria-hidden="true" className="absolute left-[1.45rem] top-11 hidden h-[calc(100%-1.75rem)] border-l border-dashed border-[hsl(var(--input))] lg:block" />
+            ) : null}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "relative flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
+                done
+                  ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal))] text-white"
+                  : active
+                    ? "border-[hsl(var(--focus-blue))] bg-[hsl(var(--focus-blue))] text-white"
+                    : "border-[hsl(var(--input))] bg-white text-[hsl(var(--slate))]",
+              )}
+            >
+              {done ? "✓" : index + 1}
+            </span>
+            <span>
+              <span className="block text-sm font-semibold leading-5 text-[hsl(var(--ink-navy))]">{step.label}</span>
+              <span className="mt-1 block text-xs leading-5 text-[hsl(var(--slate))]">{step.detail}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
