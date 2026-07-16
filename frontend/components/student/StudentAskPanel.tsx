@@ -6,6 +6,7 @@ import { StudentChatThread } from "@/components/student/StudentChatThread";
 import { StudentPromptStarters } from "@/components/student/StudentPromptStarters";
 import { Button } from "@/components/ui/button";
 import { askRag } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type {
   ApiError,
   RagAnswerSource,
@@ -50,12 +51,14 @@ const FALLBACK_ERROR_MESSAGE = "I could not reach the advising backend right now
 export function StudentAskPanel() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<StudentChatMessage[]>([]);
+  const [hasSelectedStarter, setHasSelectedStarter] = useState(false);
   const [isAsking, setIsAsking] = useState(false);
   const [composerError, setComposerError] = useState<string | null>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
   function handleStarterSelect(prompt: string) {
     setQuestion(prompt);
+    setHasSelectedStarter(true);
     setComposerError(null);
     window.requestAnimationFrame(() => composerRef.current?.focus());
   }
@@ -135,41 +138,81 @@ export function StudentAskPanel() {
     }
   }
 
+  const hasStarted = hasSelectedStarter || messages.length > 0;
+
   return (
-    <div>
-      {messages.length === 0 ? <StudentPromptStarters groups={promptGroups} onSelect={handleStarterSelect} /> : null}
-      <StudentChatThread messages={messages} />
-      <form
-        aria-busy={isAsking}
-        className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-[hsl(var(--line))] bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6"
-        onSubmit={handleAsk}
-      >
-        <div className="mx-auto flex max-w-4xl flex-col gap-2">
-          <label className="text-sm font-semibold text-[hsl(var(--ink-navy))]" htmlFor="student-question">
-            Ask an advising question
-          </label>
-          <div className="rounded-xl border border-[hsl(var(--input))] bg-white p-2 surface-shadow focus-within:border-[hsl(var(--focus-blue))] focus-within:ring-2 focus-within:ring-[hsl(var(--focus-blue))]/20 sm:flex sm:items-end sm:gap-2">
-            <textarea
-              className="max-h-44 min-h-20 w-full resize-y border-0 bg-transparent px-3 py-2 text-sm leading-6 text-foreground outline-none placeholder:text-[hsl(var(--slate))]/75 focus-visible:outline-none"
-              disabled={isAsking}
-              id="student-question"
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask about requirements, prerequisites, electives, or policies"
-              ref={composerRef}
-              required
-              value={question}
-            />
-            <Button className="min-h-11 w-full shrink-0 px-5 sm:w-auto" disabled={isAsking} type="submit">
-              {isAsking ? "Checking sources…" : "Ask uniAdvisor"}
-            </Button>
+    <section
+      aria-label={hasStarted ? "Student advising conversation" : undefined}
+      aria-labelledby={hasStarted ? undefined : "student-advisor-title"}
+      className={cn(
+        "mx-auto transition-[max-width,padding] duration-300",
+        hasStarted ? "flex min-h-[calc(100vh-8rem)] max-w-4xl flex-col" : "max-w-3xl py-5 sm:py-9"
+      )}
+    >
+      {hasStarted ? null : (
+        <header className="text-center">
+          <h1
+            className="font-serif text-3xl font-semibold leading-tight tracking-tight text-[hsl(var(--ink-navy))] sm:text-4xl"
+            id="student-advisor-title"
+          >
+            How can I help with your CS planning?
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[hsl(var(--slate))] sm:text-base">
+            Ask about requirements, prerequisites, electives, or policies. Answers use the advising sources available to uniAdvisor and show supporting evidence when it is found.
+          </p>
+        </header>
+      )}
+
+      <div className={cn(hasStarted ? "student-chat-enter flex flex-1 flex-col pt-2" : "mt-6 sm:mt-8")}>
+        {hasStarted ? <StudentChatThread messages={messages} /> : null}
+        <form
+          aria-busy={isAsking}
+          className={cn(
+            hasStarted
+              ? "sticky bottom-0 z-10 -mx-4 mt-auto border-t border-[hsl(var(--line))] bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6"
+              : "mx-auto w-full"
+          )}
+          onSubmit={handleAsk}
+        >
+          <div className="mx-auto flex max-w-4xl flex-col gap-2">
+            <label className="sr-only" htmlFor="student-question">
+              Ask an advising question
+            </label>
+            <div className="rounded-xl border border-[hsl(var(--input))] bg-white p-2 surface-shadow focus-within:border-[hsl(var(--focus-blue))] focus-within:ring-2 focus-within:ring-[hsl(var(--focus-blue))]/20 sm:flex sm:items-end sm:gap-2">
+              <textarea
+                className="max-h-44 min-h-20 w-full resize-y border-0 bg-transparent px-3 py-2 text-sm leading-6 text-foreground outline-none placeholder:text-[hsl(var(--slate))]/75 focus-visible:outline-none"
+                disabled={isAsking}
+                id="student-question"
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder="Ask about requirements, prerequisites, electives, or policies"
+                ref={composerRef}
+                required
+                value={question}
+              />
+              <Button className="min-h-11 w-full shrink-0 px-5 sm:w-auto" disabled={isAsking} type="submit">
+                {isAsking ? "Checking sources…" : "Ask uniAdvisor"}
+              </Button>
+            </div>
+            <div aria-live="polite">
+              {composerError ? <p className="text-sm font-medium text-destructive">{composerError}</p> : null}
+            </div>
+            {hasStarted ? (
+              <p className="text-center text-xs leading-5 text-[hsl(var(--slate))]">Each question is sent separately. uniAdvisor does not use earlier messages as memory.</p>
+            ) : null}
           </div>
-          <div aria-live="polite">
-            {composerError ? <p className="text-sm font-medium text-destructive">{composerError}</p> : null}
-          </div>
-          <p className="text-xs leading-5 text-[hsl(var(--slate))]">Each question is sent separately. uniAdvisor does not use earlier messages as memory.</p>
-        </div>
-      </form>
-    </div>
+        </form>
+
+        {hasStarted ? null : (
+          <>
+            <StudentPromptStarters groups={promptGroups} onSelect={handleStarterSelect} />
+            <footer className="mt-7 flex flex-col gap-2 text-center text-xs leading-5 text-[hsl(var(--slate))]">
+              <p>Use uniAdvisor as a starting point. Confirm graduation, registration, degree audit, and other official decisions with your academic advisor or registrar.</p>
+              <p>Each question is sent separately. uniAdvisor does not use earlier messages as memory.</p>
+            </footer>
+          </>
+        )}
+      </div>
+    </section>
   );
 }
 

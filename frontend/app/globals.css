@@ -72,6 +72,22 @@
   .surface-shadow {
     box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.04);
   }
+
+  .student-chat-enter {
+    animation: student-chat-enter 300ms ease-out both;
+  }
+}
+
+@keyframes student-chat-enter {
+  from {
+    opacity: 0.72;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

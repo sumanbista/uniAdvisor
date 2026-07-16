@@ -8,18 +8,11 @@ type StudentChatThreadProps = {
 
 export function StudentChatThread({ messages }: StudentChatThreadProps) {
   if (messages.length === 0) {
-    return (
-      <section
-        className="rounded-lg border border-dashed border-[hsl(var(--line))] bg-white p-6 text-center text-sm leading-6 text-[hsl(var(--slate))]"
-        aria-label="Conversation"
-      >
-        Your conversation will appear here. Every answer shows how strongly it matches the available sources and includes evidence when available.
-      </section>
-    );
+    return null;
   }
 
   return (
-    <section aria-label="Conversation" aria-live="polite" className="flex flex-col gap-6" role="log">
+    <section aria-label="Conversation" aria-live="polite" className="flex flex-1 flex-col gap-6 pb-6" role="log">
       {messages.map((message) => (
         <ChatMessageBubble key={message.id} message={message} />
       ))}
