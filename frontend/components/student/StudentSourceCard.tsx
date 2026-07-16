@@ -9,11 +9,11 @@ export function StudentSourceCard({ source }: StudentSourceCardProps) {
   const snippet = getSourceSnippet(source);
 
   return (
-    <article className="rounded-md border border-[hsl(var(--line))] bg-white/75 p-4">
+    <article className="rounded-lg border border-[hsl(var(--line))] bg-[hsl(var(--muted))] p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h4 className="flex min-w-0 gap-3 text-sm font-semibold leading-6 text-[hsl(var(--ink-navy))]">
-            <span className="font-mono text-xs text-[hsl(var(--evidence-teal))]">[{source.source_number}]</span>
+            <span className="text-xs text-[hsl(var(--evidence-teal))]">Source {source.source_number}</span>
             <span className="min-w-0 break-words">{source.document_title}</span>
           </h4>
           <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[hsl(var(--slate))]">
@@ -23,7 +23,7 @@ export function StudentSourceCard({ source }: StudentSourceCardProps) {
         </div>
         <SourceTypeBadge sourceType={source.source_type} />
       </div>
-      {snippet ? <p className="mt-3 text-sm leading-6 text-[hsl(var(--slate))]">{snippet}</p> : null}
+      {snippet ? <blockquote className="mt-3 border-l-2 border-[hsl(var(--evidence-teal))]/35 pl-3 text-sm leading-6 text-[hsl(var(--slate))]">{snippet}</blockquote> : null}
     </article>
   );
 }
@@ -37,7 +37,7 @@ function InlineMetadata({ label, value }: MetadataProps) {
   return (
     <div className="flex min-w-0 gap-1">
       <dt className="font-medium">{label}:</dt>
-      <dd className="min-w-0 break-words font-mono">{value}</dd>
+      <dd className="min-w-0 break-words">{value}</dd>
     </div>
   );
 }

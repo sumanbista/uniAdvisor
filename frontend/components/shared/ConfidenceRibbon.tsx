@@ -15,20 +15,20 @@ export function ConfidenceRibbon({ confidence, confidenceScore }: ConfidenceRibb
   return (
     <section
       aria-label={`Confidence: ${display.label}, ${scoreLabel}`}
-      className="rounded-md border border-[hsl(var(--line))] bg-[hsl(var(--paper))] p-4 shadow-sm"
+      className="rounded-lg border border-[hsl(var(--line))] bg-white p-4"
     >
       <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
         <p className={cn("text-sm font-semibold", display.tone)}>{display.label}</p>
-        <p className="font-mono text-sm font-semibold text-[hsl(var(--ink-navy))]">{scoreLabel}</p>
+        <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">{scoreLabel}</p>
       </div>
 
       <div className="mt-4" aria-hidden="true">
-        <div className="relative h-3 rounded-full bg-[hsl(var(--evidence-teal-tint))]">
+        <div className="relative h-2 rounded-full bg-[hsl(var(--secondary))]">
           <div className="absolute inset-y-0 left-1/3 w-px bg-white/90" />
           <div className="absolute inset-y-0 left-2/3 w-px bg-white/90" />
           <div
-            className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[hsl(var(--evidence-teal))] shadow"
-            style={{ left: `${percent}%` }}
+            className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[hsl(var(--evidence-teal))] shadow-sm"
+            style={{ left: `${Math.max(2, Math.min(98, percent))}%` }}
           />
         </div>
         <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-[hsl(var(--slate))]">

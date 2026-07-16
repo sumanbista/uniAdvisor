@@ -17,7 +17,7 @@ const labels: Record<SourceType, string> = {
 
 export function SourceTypeBadge({ sourceType }: SourceTypeBadgeProps) {
   return (
-    <Badge className="border-teal-200 bg-teal-50 text-teal-900" variant="outline">
+    <Badge className="border-[hsl(var(--evidence-teal))]/25 bg-[hsl(var(--evidence-teal-tint))] text-[hsl(var(--evidence-teal))]" variant="outline">
       {labels[sourceType]}
     </Badge>
   );

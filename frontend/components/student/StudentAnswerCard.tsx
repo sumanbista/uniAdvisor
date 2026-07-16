@@ -20,17 +20,17 @@ export function StudentAnswerCard({ answer }: StudentAnswerCardProps) {
     <article
       className={
         needsDisplayReview
-          ? "space-y-5 rounded-lg border border-[hsl(var(--verify-amber))] bg-[hsl(var(--verify-amber-tint))] p-4 sm:p-5"
-          : "space-y-5 rounded-lg border border-[hsl(var(--line))] border-l-4 border-l-[hsl(var(--evidence-teal))] bg-[hsl(var(--paper))] p-4 shadow-sm sm:p-5"
+          ? "flex flex-col gap-5 rounded-xl border border-[hsl(var(--verify-amber))]/45 bg-[hsl(var(--verify-amber-tint))] p-5"
+          : "flex flex-col gap-5 rounded-xl border border-[hsl(var(--line))] border-l-[3px] border-l-[hsl(var(--evidence-teal))] bg-white p-5 surface-shadow"
       }
     >
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-normal text-[hsl(var(--slate))]">
+            <p className="text-xs font-semibold text-[hsl(var(--evidence-teal))]">
               uniAdvisor
             </p>
-            <h3 className="font-serif text-xl font-semibold text-[hsl(var(--ink-navy))]">
+            <h3 className="mt-1 font-serif text-xl font-semibold text-[hsl(var(--ink-navy))]">
               {getAnswerHeading(answer, answerDisplay.hasStudentFacingAnswer)}
             </h3>
             <p className="mt-1 text-sm leading-6 text-[hsl(var(--slate))]">{answer.question}</p>
@@ -49,7 +49,7 @@ export function StudentAnswerCard({ answer }: StudentAnswerCardProps) {
       <ConfidenceRibbon confidence={answer.confidence} confidenceScore={answer.confidence_score} />
 
       {answer.sources.length > 0 ? (
-        <section className="space-y-3" aria-label="Source evidence">
+        <section className="flex flex-col gap-3" aria-label="Source evidence">
           <h4 className="font-serif text-lg font-semibold text-[hsl(var(--ink-navy))]">Source evidence</h4>
           <div className="grid gap-3">
             {answer.sources.map((source) => (
@@ -81,7 +81,7 @@ function getAdvisorReviewReasons(answer: StudentRagAskResponse) {
   }
   if (!getStudentFacingAnswerDisplay(answer.refused ? answer.refusal_reason || answer.answer : answer.answer)
     .hasStudentFacingAnswer) {
-    reasons.add("The backend returned internal reasoning instead of a student-facing answer.");
+    reasons.add("A student-facing answer was not available for this question.");
   }
   if (answer.advisor_note) {
     reasons.add("The response includes advisor guidance.");
@@ -128,7 +128,7 @@ function getStudentFacingAnswerDisplay(answerText: string): StudentFacingAnswerD
   }
 
   return {
-    text: "The advising backend returned internal reasoning instead of student-facing guidance, so uniAdvisor is not showing it as an answer. Please try again or contact your academic advisor with the listed sources.",
+    text: "A student-facing answer was not available, so uniAdvisor is not showing a response. Try asking in a different way or confirm the question with your academic advisor.",
     hasStudentFacingAnswer: false,
   };
 }

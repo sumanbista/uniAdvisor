@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export type WorkflowProgress = {
@@ -14,87 +13,69 @@ type WorkflowStripProps = {
 };
 
 const steps = [
-  { key: "uploaded", label: "Upload source", detail: "Add an advising document" },
-  { key: "chunked", label: "Process source", detail: "Prepare text and index evidence" },
-  { key: "ready", label: "Ready for evidence search", detail: "Make passages searchable" },
-  { key: "search", label: "Verify evidence", detail: "Inspect supporting sources" },
-  { key: "ask", label: "Test answer", detail: "Review citations and guidance" },
-];
+  { key: "uploaded", label: "Add advising sources", detail: "Upload official materials." },
+  { key: "chunked", label: "Process source", detail: "Prepare it for evidence search." },
+  { key: "searched", label: "Verify indexed evidence", detail: "Review the passages students may rely on." },
+  { key: "asked", label: "Test student-style questions", detail: "Check answers, confidence, and sources." },
+] as const;
 
 export function WorkflowStrip({ progress }: WorkflowStripProps) {
   return (
-    <details className="group rounded-lg border border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
-      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))] sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
-        <div>
-          <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">How the uniAdvisor workflow works</p>
-          <p className="mt-1 text-sm leading-5 text-[hsl(var(--slate))]">
-            Documents are processed into searchable evidence before they can be used for grounded answers.
-          </p>
-        </div>
-        <span className="text-sm font-medium text-[hsl(var(--evidence-teal))] group-open:hidden">Show steps</span>
-        <span className="hidden text-sm font-medium text-[hsl(var(--evidence-teal))] group-open:inline">Hide steps</span>
-      </summary>
-
-      <Card className="rounded-none border-x-0 border-b-0 border-t border-[hsl(var(--line))] bg-transparent shadow-none">
-        <CardHeader className="pb-3">
-          <CardTitle className="font-serif text-lg text-[hsl(var(--ink-navy))]">Source processing workflow</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <section aria-label="Advising source workflow" className="grid gap-3 min-[900px]:grid-cols-5">
-            {steps.map((step, index) => {
-              const done = getStepDone(step.key, progress);
-
-              return (
-                <div
+    <aside aria-labelledby="workflow-title" className="lg:sticky lg:top-24 lg:self-start">
+      <div className="border-b border-[hsl(var(--line))] pb-3 lg:border-b-0 lg:pb-0">
+        <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-[hsl(var(--slate))]" id="workflow-title">
+          Advising workflow
+        </h2>
+        <ol className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-0">
+          {steps.map((step, index) => {
+            const done = progress[step.key];
+            const active = isCurrentStep(index, progress);
+            return (
+              <li
+                className={cn(
+                  "relative flex gap-2 rounded-lg px-2 py-3 sm:gap-3 sm:px-3 lg:rounded-none lg:px-0 lg:py-4",
+                  active && "bg-[hsl(var(--secondary))] lg:-mx-3 lg:rounded-lg lg:px-3",
+                )}
+                key={step.key}
+              >
+                {index < steps.length - 1 ? (
+                  <span aria-hidden="true" className="absolute left-[1.45rem] top-11 hidden h-[calc(100%-1.75rem)] border-l border-dashed border-[hsl(var(--input))] lg:block" />
+                ) : null}
+                <span
+                  aria-hidden="true"
                   className={cn(
-                    "rounded-md border p-3",
+                    "relative flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
                     done
-                      ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal-tint))]"
-                      : "border-[hsl(var(--line))] bg-background"
+                      ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal))] text-white"
+                      : active
+                        ? "border-[hsl(var(--focus-blue))] bg-[hsl(var(--focus-blue))] text-white"
+                        : "border-[hsl(var(--input))] bg-white text-[hsl(var(--slate))]",
                   )}
-                  key={step.label}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "flex size-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
-                        done
-                          ? "border-[hsl(var(--evidence-teal))] bg-[hsl(var(--evidence-teal))] text-white"
-                          : "border-[hsl(var(--line))] bg-[hsl(var(--paper))] text-[hsl(var(--ink-navy))]"
-                      )}
-                    >
-                      {done ? "✓" : index + 1}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">{step.label}</p>
-                      <p className="text-xs text-[hsl(var(--slate))]">{step.detail}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </section>
-        </CardContent>
-      </Card>
-    </details>
+                  {done ? "✓" : index + 1}
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold leading-5 text-[hsl(var(--ink-navy))]">{step.label}</span>
+                  <span className="mt-1 hidden text-xs leading-5 text-[hsl(var(--slate))] sm:block lg:block">{step.detail}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+
+      <details className="mt-4 rounded-lg border border-[hsl(var(--line))] bg-white p-3 text-sm lg:mt-8 lg:p-4">
+        <summary className="cursor-pointer font-semibold text-[hsl(var(--ink-navy))]">How processing works</summary>
+        <p className="mt-3 leading-6 text-[hsl(var(--slate))]">
+          Processing prepares source text and makes its passages searchable. Advanced controls are available after upload when troubleshooting is needed.
+        </p>
+      </details>
+    </aside>
   );
 }
 
-function getStepDone(stepKey: string, progress: WorkflowProgress) {
-  if (stepKey === "uploaded") {
-    return progress.uploaded;
-  }
-  if (stepKey === "extracted") {
-    return progress.extracted;
-  }
-  if (stepKey === "chunked") {
-    return progress.chunked;
-  }
-  if (stepKey === "ready") {
-    return progress.chunked;
-  }
-  if (stepKey === "search" || stepKey === "ask") {
-    return stepKey === "search" ? progress.searched : progress.asked;
-  }
-  return false;
+function isCurrentStep(index: number, progress: WorkflowProgress) {
+  const values = [progress.uploaded, progress.chunked, progress.searched, progress.asked];
+  const firstIncomplete = values.findIndex((value) => !value);
+  return index === (firstIncomplete === -1 ? values.length - 1 : firstIncomplete);
 }

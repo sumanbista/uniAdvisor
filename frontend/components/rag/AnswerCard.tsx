@@ -12,23 +12,25 @@ type AnswerCardProps = {
 
 export function AnswerCard({ answer }: AnswerCardProps) {
   const refusalMessage = answer.refusal_reason || answer.answer;
+  const safeAnswer = stripReasoningBlocks(answer.refused ? refusalMessage : answer.answer);
+  const displayAnswer = safeAnswer || "A user-facing answer was not available. Try asking in a different way or review the source evidence directly.";
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <ConfidenceRibbon confidence={answer.confidence} confidenceScore={answer.confidence_score} />
 
       <Card
         className={
           answer.refused
-            ? "border-[hsl(var(--verify-amber))] bg-[hsl(var(--verify-amber-tint))]"
-            : "border-l-4 border-l-[hsl(var(--evidence-teal))] bg-[hsl(var(--paper))]"
+            ? "border-[hsl(var(--verify-amber))]/45 bg-[hsl(var(--verify-amber-tint))]"
+            : "border-[hsl(var(--line))] border-l-[3px] border-l-[hsl(var(--evidence-teal))] bg-white"
         }
       >
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-normal text-[hsl(var(--slate))]">
-                {answer.refused ? "Careful academic boundary" : "Generated from source evidence"}
+                {answer.refused ? "Advisor review needed" : "Based on source evidence"}
               </p>
               <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">
                 {answer.refused ? "uniAdvisor cannot determine that from documents alone" : "Grounded answer"}
@@ -44,7 +46,7 @@ export function AnswerCard({ answer }: AnswerCardProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="whitespace-pre-wrap text-sm leading-7 text-foreground">
-            {answer.refused ? refusalMessage : answer.answer}
+            {displayAnswer}
           </p>
         </CardContent>
       </Card>
@@ -64,10 +66,16 @@ export function AnswerCard({ answer }: AnswerCardProps) {
         <>
           <Separator />
           <InfoNote title="Advisor note" tone="warning">
-            {answer.advisor_note || refusalMessage}
+            {answer.advisor_note || displayAnswer}
           </InfoNote>
         </>
       ) : null}
     </div>
   );
+}
+
+function stripReasoningBlocks(text: string) {
+  const withoutClosedBlocks = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  const openTagIndex = withoutClosedBlocks.toLowerCase().indexOf("<think>");
+  return (openTagIndex >= 0 ? withoutClosedBlocks.slice(0, openTagIndex) : withoutClosedBlocks).trim();
 }

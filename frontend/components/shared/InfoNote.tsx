@@ -16,7 +16,7 @@ const toneStyles = {
 
 export function InfoNote({ title, children, tone = "info" }: InfoNoteProps) {
   return (
-    <Alert className={cn("shadow-sm", toneStyles[tone])}>
+    <Alert className={cn(toneStyles[tone])}>
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{children}</AlertDescription>
     </Alert>

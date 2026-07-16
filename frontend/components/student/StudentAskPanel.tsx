@@ -44,7 +44,7 @@ const promptGroups = [
   },
 ];
 
-const LOADING_MESSAGE = "Checking uploaded CS advising documents...";
+const LOADING_MESSAGE = "Checking the available advising sources…";
 const FALLBACK_ERROR_MESSAGE = "I could not reach the advising backend right now. Please try again in a moment.";
 
 export function StudentAskPanel() {
@@ -136,33 +136,37 @@ export function StudentAskPanel() {
   }
 
   return (
-    <div className="space-y-5">
-      <StudentPromptStarters groups={promptGroups} onSelect={handleStarterSelect} />
+    <div>
+      {messages.length === 0 ? <StudentPromptStarters groups={promptGroups} onSelect={handleStarterSelect} /> : null}
       <StudentChatThread messages={messages} />
       <form
-        className="sticky bottom-0 z-10 -mx-4 border-t border-[hsl(var(--line))] bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6"
+        aria-busy={isAsking}
+        className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-[hsl(var(--line))] bg-background/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6"
         onSubmit={handleAsk}
       >
-        <div className="mx-auto grid max-w-4xl gap-2">
-          <label className="text-sm font-medium text-[hsl(var(--ink-navy))]" htmlFor="student-question">
-            Ask a follow-up or start a new advising question.
+        <div className="mx-auto flex max-w-4xl flex-col gap-2">
+          <label className="text-sm font-semibold text-[hsl(var(--ink-navy))]" htmlFor="student-question">
+            Ask an advising question
           </label>
-          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div className="rounded-xl border border-[hsl(var(--input))] bg-white p-2 surface-shadow focus-within:border-[hsl(var(--focus-blue))] focus-within:ring-2 focus-within:ring-[hsl(var(--focus-blue))]/20 sm:flex sm:items-end sm:gap-2">
             <textarea
-              className="max-h-44 min-h-24 resize-y rounded-md border border-input bg-[hsl(var(--paper))] px-3 py-2 text-sm leading-6 text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))]"
+              className="max-h-44 min-h-20 w-full resize-y border-0 bg-transparent px-3 py-2 text-sm leading-6 text-foreground outline-none placeholder:text-[hsl(var(--slate))]/75 focus-visible:outline-none"
               disabled={isAsking}
               id="student-question"
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask about requirements, prerequisites, electives, or policies."
+              placeholder="Ask about requirements, prerequisites, electives, or policies"
               ref={composerRef}
               required
               value={question}
             />
-            <Button className="h-11 px-5" disabled={isAsking} type="submit">
-              {isAsking ? "Checking..." : "Ask uniAdvisor"}
+            <Button className="min-h-11 w-full shrink-0 px-5 sm:w-auto" disabled={isAsking} type="submit">
+              {isAsking ? "Checking sources…" : "Ask uniAdvisor"}
             </Button>
           </div>
-          {composerError ? <p className="text-sm text-[hsl(var(--verify-amber))]">{composerError}</p> : null}
+          <div aria-live="polite">
+            {composerError ? <p className="text-sm font-medium text-destructive">{composerError}</p> : null}
+          </div>
+          <p className="text-xs leading-5 text-[hsl(var(--slate))]">Each question is sent separately. uniAdvisor does not use earlier messages as memory.</p>
         </div>
       </form>
     </div>

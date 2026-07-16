@@ -7,7 +7,6 @@ import type { WorkflowProgress } from "@/components/layout/WorkflowStrip";
 import { ErrorMessage } from "@/components/shared/ErrorMessage";
 import { InfoNote } from "@/components/shared/InfoNote";
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { SectionHeader } from "@/components/shared/SectionHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { uploadDocument } from "@/lib/api";
 import type { ApiError, DocumentRecord, SourceType } from "@/lib/types";
@@ -68,7 +67,7 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
       const uploadedDocument = await uploadDocument(formData);
       setDocument(uploadedDocument);
       onProgressChange?.({ uploaded: true, extracted: false, chunked: false, searched: false, asked: false });
-      setSuccess("Advising source uploaded. Process the source to make it ready for evidence search.");
+      setSuccess("Source added. Process it next to make its evidence searchable.");
     } catch (caught) {
       const apiError = caught as Partial<ApiError>;
       setError(apiError.message || "Upload failed. Check that the backend is running and try again.");
@@ -78,124 +77,98 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
-      <div className="space-y-4">
-        <Card className="border-[hsl(var(--line))] bg-[hsl(var(--paper))] shadow-sm">
-          <CardHeader>
-            <CardTitle className="font-serif text-xl text-[hsl(var(--ink-navy))]">Upload advising source</CardTitle>
-            <CardDescription>Supported files: .pdf, .txt, and .md</CardDescription>
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="min-w-0">
+        <Card className="border-[hsl(var(--line))] bg-white surface-shadow">
+          <CardHeader className="border-b border-[hsl(var(--line))] pb-5">
+            <CardTitle className="text-lg font-semibold text-[hsl(var(--ink-navy))]">Add an advising source</CardTitle>
+            <CardDescription className="leading-6">Upload an official PDF, text, or Markdown document and describe where it belongs.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="document-file">
-                  File
+          <CardContent className="pt-6">
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+              <div className="rounded-lg border border-dashed border-[hsl(var(--input))] bg-[hsl(var(--muted))] p-5">
+                <label className="text-sm font-semibold text-[hsl(var(--ink-navy))]" htmlFor="document-file">
+                  Choose a source file
                 </label>
+                <p className="mt-1 text-xs leading-5 text-[hsl(var(--slate))]">PDF, TXT, or MD. Use current, official advising materials.</p>
                 <input
                   accept=".pdf,.txt,.md"
-                  className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground"
+                  className="mt-4 block w-full text-sm text-[hsl(var(--slate))] file:mr-4 file:min-h-10 file:cursor-pointer file:rounded-md file:border file:border-[hsl(var(--input))] file:bg-white file:px-4 file:text-sm file:font-semibold file:text-[hsl(var(--ink-navy))] hover:file:bg-[hsl(var(--secondary))]"
                   id="document-file"
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                   type="file"
                 />
-                <p className="text-xs text-muted-foreground">{selectedFileName}</p>
-              </div>
-
-              <TextInput id="document-title" label="Title" onChange={setTitle} required value={title} />
-
-              <div className="grid gap-2">
-                <label className="text-sm font-medium" htmlFor="source-type">
-                  Source type
-                </label>
-                <select
-                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-                  id="source-type"
-                  onChange={(event) => setSourceType(event.target.value as SourceType)}
-                  required
-                  value={sourceType}
-                >
-                  {sourceTypes.map((source) => (
-                    <option key={source.value} value={source.value}>
-                      {source.label}
-                    </option>
-                  ))}
-                </select>
+                <p aria-live="polite" className="mt-3 text-xs font-medium text-[hsl(var(--slate))]">{selectedFileName}</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
+                <TextInput id="document-title" label="Source title" onChange={setTitle} placeholder="CS degree requirements" required value={title} />
+                <SelectInput id="source-type" label="Source type" onChange={setSourceType} value={sourceType} />
                 <TextInput id="department" label="Department" onChange={setDepartment} value={department} />
                 <TextInput id="program" label="Program" onChange={setProgram} value={program} />
+                <TextInput id="academic-year" label="Academic year (optional)" onChange={setAcademicYear} placeholder="2025–2026" value={academicYear} />
               </div>
 
-              <TextInput
-                id="academic-year"
-                label="Academic year"
-                onChange={setAcademicYear}
-                placeholder="2025-2026"
-                value={academicYear}
-              />
+              <div aria-live="polite" className="flex flex-col gap-3">
+                {error ? <ErrorMessage message={error} title="Source could not be added" /> : null}
+                {success ? <InfoNote title="Source added" tone="success">{success}</InfoNote> : null}
+              </div>
 
-              {error ? <ErrorMessage message={error} /> : null}
-              {success ? <InfoNote title="Upload complete" tone="success">{success}</InfoNote> : null}
-
-              <LoadingButton loading={isUploading} loadingLabel="Uploading..." type="submit">
-                Upload Source
+              <LoadingButton className="min-h-11 self-start px-5" loading={isUploading} loadingLabel="Adding source…" type="submit">
+                Add Advising Source
               </LoadingButton>
             </form>
           </CardContent>
         </Card>
+
+        <section aria-labelledby="uploaded-source-title" className="mt-5">
+          <div className="mb-3 flex items-baseline justify-between gap-4">
+            <h3 className="text-sm font-semibold text-[hsl(var(--ink-navy))]" id="uploaded-source-title">Current source</h3>
+            <p className="text-xs text-[hsl(var(--slate))]">Shows the source added in this session</p>
+          </div>
+          {document ? (
+            <DocumentWorkflowCard document={document} onDocumentChange={setDocument} onWorkflowProgress={onProgressChange} />
+          ) : (
+            <div className="rounded-lg border border-dashed border-[hsl(var(--line))] bg-white p-6 text-center">
+              <p className="text-sm font-semibold text-[hsl(var(--ink-navy))]">No source added in this session</p>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[hsl(var(--slate))]">Choose an official file above. After it uploads, you can process it and verify its evidence.</p>
+            </div>
+          )}
+        </section>
       </div>
 
-      <div>
-        {document ? (
-          <DocumentWorkflowCard
-            document={document}
-            onDocumentChange={setDocument}
-            onWorkflowProgress={onProgressChange}
-          />
-        ) : (
-          <Card className="border-dashed border-[hsl(var(--line))] bg-white/70 shadow-sm">
-            <CardHeader>
-              <SectionHeader
-                eyebrow="Advising source"
-                title="No source uploaded yet"
-                description="Start by uploading an advising source. After upload, process it before verifying evidence or testing an answer."
-              />
-            </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-muted-foreground">
-              <Step label="1. Upload source" />
-              <Step label="2. Process source" />
-              <Step label="3. Ready for evidence search" />
-              <Step label="4. Verify evidence or test an answer" />
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      <aside className="h-fit rounded-lg border border-[hsl(var(--line))] bg-white p-5 xl:sticky xl:top-24" aria-labelledby="workspace-guide-title">
+        <h3 className="text-base font-semibold text-[hsl(var(--ink-navy))]" id="workspace-guide-title">Workspace guide</h3>
+        <p className="mt-2 text-sm leading-6 text-[hsl(var(--slate))]">Build a trustworthy knowledge base in four clear steps.</p>
+        <ol className="mt-5 flex flex-col gap-5">
+          <GuideStep number="1" title="Add official sources">Use current catalogs, checksheets, policies, and advising guides.</GuideStep>
+          <GuideStep number="2" title="Process the source">Prepare the content so it can be searched as evidence.</GuideStep>
+          <GuideStep number="3" title="Verify the evidence">Search for key requirements and confirm the passages are accurate.</GuideStep>
+          <GuideStep number="4" title="Test an answer">Ask a realistic student question and review its sources.</GuideStep>
+        </ol>
+      </aside>
     </div>
   );
 }
 
-function Step({ label }: { label: string }) {
-  return <div className="rounded-md border border-[hsl(var(--line))] bg-background px-3 py-2">{label}</div>;
+function GuideStep({ children, number, title }: { children: string; number: string; title: string }) {
+  return (
+    <li className="flex gap-3">
+      <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-xs font-bold text-[hsl(var(--focus-blue))]">{number}</span>
+      <span>
+        <span className="block text-sm font-semibold text-[hsl(var(--ink-navy))]">{title}</span>
+        <span className="mt-1 block text-xs leading-5 text-[hsl(var(--slate))]">{children}</span>
+      </span>
+    </li>
+  );
 }
 
-type TextInputProps = {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  required?: boolean;
-};
-
-function TextInput({ id, label, value, onChange, placeholder, required = false }: TextInputProps) {
+function TextInput({ id, label, value, onChange, placeholder, required = false }: { id: string; label: string; value: string; onChange: (value: string) => void; placeholder?: string; required?: boolean }) {
   return (
-    <div className="grid gap-2">
-      <label className="text-sm font-medium" htmlFor={id}>
-        {label}
-      </label>
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium text-[hsl(var(--ink-navy))]" htmlFor={id}>{label}</label>
       <input
-        className="h-10 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--focus-blue))]"
+        className="min-h-11 rounded-md border border-input bg-white px-3 text-sm shadow-sm placeholder:text-[hsl(var(--slate))]/70 disabled:cursor-not-allowed disabled:bg-muted"
         id={id}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
@@ -207,19 +180,21 @@ function TextInput({ id, label, value, onChange, placeholder, required = false }
   );
 }
 
+function SelectInput({ id, label, value, onChange }: { id: string; label: string; value: SourceType; onChange: (value: SourceType) => void }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium text-[hsl(var(--ink-navy))]" htmlFor={id}>{label}</label>
+      <select className="min-h-11 rounded-md border border-input bg-white px-3 text-sm shadow-sm" id={id} onChange={(event) => onChange(event.target.value as SourceType)} value={value}>
+        {sourceTypes.map((source) => <option key={source.value} value={source.value}>{source.label}</option>)}
+      </select>
+    </div>
+  );
+}
+
 function validateForm(file: File | null, title: string, sourceType: SourceType) {
-  if (!file) {
-    return "Select a .pdf, .txt, or .md file before uploading.";
-  }
-  if (!title.trim()) {
-    return "Enter a document title before uploading.";
-  }
-  if (!sourceType) {
-    return "Choose a source type before uploading.";
-  }
-  const lowerName = file.name.toLowerCase();
-  if (!supportedExtensions.some((extension) => lowerName.endsWith(extension))) {
-    return "Unsupported file type. Upload a .pdf, .txt, or .md file.";
-  }
+  if (!file) return "Select a .pdf, .txt, or .md file before uploading.";
+  if (!title.trim()) return "Enter a source title before uploading.";
+  if (!sourceType) return "Choose a source type before uploading.";
+  if (!supportedExtensions.some((extension) => file.name.toLowerCase().endsWith(extension))) return "Unsupported file type. Upload a .pdf, .txt, or .md file.";
   return null;
 }
