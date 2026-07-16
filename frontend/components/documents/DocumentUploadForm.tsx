@@ -137,15 +137,19 @@ export function DocumentUploadForm({ onProgressChange }: DocumentUploadFormProps
         </section>
       </div>
 
-      <aside className="h-fit rounded-lg border border-[hsl(var(--line))] bg-white p-5 xl:sticky xl:top-24" aria-labelledby="workspace-guide-title">
-        <h3 className="text-base font-semibold text-[hsl(var(--ink-navy))]" id="workspace-guide-title">Workspace guide</h3>
-        <p className="mt-2 text-sm leading-6 text-[hsl(var(--slate))]">Build a trustworthy knowledge base in four clear steps.</p>
-        <ol className="mt-5 flex flex-col gap-5">
-          <GuideStep number="1" title="Add official sources">Use current catalogs, checksheets, policies, and advising guides.</GuideStep>
-          <GuideStep number="2" title="Process the source">Prepare the content so it can be searched as evidence.</GuideStep>
-          <GuideStep number="3" title="Verify the evidence">Search for key requirements and confirm the passages are accurate.</GuideStep>
-          <GuideStep number="4" title="Test an answer">Ask a realistic student question and review its sources.</GuideStep>
-        </ol>
+      <aside className="h-fit xl:sticky xl:top-24" aria-labelledby="workspace-guide-title">
+        <details className="rounded-lg border border-[hsl(var(--line))] bg-white p-4 text-sm xl:p-5">
+          <summary className="cursor-pointer text-base font-semibold text-[hsl(var(--ink-navy))]" id="workspace-guide-title">
+            Workspace guide
+          </summary>
+          <p className="mt-3 leading-6 text-[hsl(var(--slate))]">Build a trustworthy knowledge base in four clear steps.</p>
+          <ol className="mt-5 flex flex-col gap-5">
+            <GuideStep number="1" title="Add official sources">Use current catalogs, checksheets, policies, and advising guides.</GuideStep>
+            <GuideStep number="2" title="Process the source">Prepare the content so it can be searched as evidence.</GuideStep>
+            <GuideStep number="3" title="Verify the evidence">Search for key requirements and confirm the passages are accurate.</GuideStep>
+            <GuideStep number="4" title="Test an answer">Ask a realistic student question and review its sources.</GuideStep>
+          </ol>
+        </details>
       </aside>
     </div>
   );
