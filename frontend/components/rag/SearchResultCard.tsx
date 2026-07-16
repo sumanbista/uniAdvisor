@@ -11,22 +11,22 @@ type SearchResultCardProps = {
 
 export function SearchResultCard({ result, rank }: SearchResultCardProps) {
   return (
-    <Card className="border-l-4 border-l-[hsl(var(--evidence-teal))] bg-[hsl(var(--paper))] shadow-sm">
+    <Card className="border-[hsl(var(--line))] border-l-[3px] border-l-[hsl(var(--evidence-teal))] bg-white shadow-none">
       <CardHeader className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-normal text-[hsl(var(--slate))]">
-              Retrieved evidence {rank}
+              Evidence {rank}
             </p>
-            <CardTitle className="font-serif text-xl leading-6 text-[hsl(var(--ink-navy))]">
+            <CardTitle className="mt-1 text-lg font-semibold leading-6 text-[hsl(var(--ink-navy))]">
               {result.document_title}
             </CardTitle>
           </div>
           <div className="flex flex-wrap gap-2">
             <SourceTypeBadge sourceType={result.source_type} />
             {typeof result.score === "number" ? (
-              <Badge className="bg-[hsl(var(--verify-amber-tint))] font-mono text-[hsl(var(--verify-amber))]" variant="secondary">
-                Score: {result.score.toFixed(2)}
+              <Badge className="bg-[hsl(var(--secondary))] text-[hsl(var(--focus-blue))]" variant="secondary">
+                Evidence match: {formatEvidenceMatch(result.score)}
               </Badge>
             ) : null}
           </div>
@@ -43,12 +43,17 @@ export function SearchResultCard({ result, rank }: SearchResultCardProps) {
 
         <Separator />
 
-        <blockquote className="rounded-md border border-[hsl(var(--line))] bg-background px-4 py-3 text-sm leading-7 text-foreground">
+        <blockquote className="rounded-md bg-[hsl(var(--muted))] px-4 py-3 text-sm leading-7 text-foreground">
           <p className="whitespace-pre-wrap">{result.text}</p>
         </blockquote>
       </CardContent>
     </Card>
   );
+}
+
+function formatEvidenceMatch(score: number) {
+  const percent = score <= 1 ? score * 100 : score;
+  return `${Math.max(0, Math.min(100, Math.round(percent)))}%`;
 }
 
 type MetadataProps = {

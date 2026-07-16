@@ -4,46 +4,83 @@
 
 @layer base {
   :root {
-    --background: 44 33% 96%;
-    --foreground: 219 39% 13%;
+    --background: 216 33% 98%;
+    --foreground: 222 47% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 219 39% 13%;
-    --primary: 219 60% 18%;
-    --primary-foreground: 44 33% 96%;
-    --secondary: 178 32% 90%;
-    --secondary-foreground: 188 47% 18%;
-    --muted: 42 25% 90%;
-    --muted-foreground: 217 16% 41%;
-    --accent: 42 70% 89%;
-    --accent-foreground: 37 55% 18%;
-    --destructive: 0 72% 44%;
+    --card-foreground: 222 47% 14%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 50% 95%;
+    --secondary-foreground: 221 69% 38%;
+    --muted: 216 28% 96%;
+    --muted-foreground: 218 15% 43%;
+    --accent: 214 55% 95%;
+    --accent-foreground: 221 69% 35%;
+    --destructive: 0 68% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 39 24% 84%;
-    --input: 39 24% 84%;
-    --ring: 219 60% 18%;
-    --radius: 0.5rem;
-    --ink-navy: 219 50% 16%;
-    --ink-navy-70: 222 29% 33%;
-    --parchment: 44 33% 95%;
+    --border: 216 24% 88%;
+    --input: 216 24% 82%;
+    --ring: 221 83% 53%;
+    --radius: 0.625rem;
+    --ink-navy: 222 56% 16%;
+    --ink-navy-70: 221 31% 32%;
     --paper: 0 0% 100%;
-    --evidence-teal: 169 41% 31%;
-    --evidence-teal-tint: 146 28% 92%;
-    --verify-amber: 32 71% 42%;
-    --verify-amber-tint: 34 68% 91%;
-    --slate: 217 11% 40%;
-    --line: 42 24% 86%;
-    --focus-blue: 220 69% 39%;
+    --evidence-teal: 158 55% 32%;
+    --evidence-teal-tint: 151 45% 95%;
+    --verify-amber: 31 87% 38%;
+    --verify-amber-tint: 38 92% 95%;
+    --slate: 218 15% 43%;
+    --line: 216 24% 88%;
+    --focus-blue: 221 83% 53%;
   }
 
   * {
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--focus-blue));
+    outline-offset: 2px;
   }
 
   ::selection {
     @apply bg-secondary text-secondary-foreground;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .surface-shadow {
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px rgb(15 23 42 / 0.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
